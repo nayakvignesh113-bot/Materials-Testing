@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Materials Testing Virtual Lab</title>
+<meta name="description" content="Virtual laboratory for materials testing and characterization: 22 simulated experiments with pre-test, theory, operation, experiment, validation, post-test and report stages.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/css/lab.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="#">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect x="1" y="1" width="30" height="30" rx="6" fill="var(--ink)"/><path d="M7 25 L7 17 L11 14 L13 15 Q18 9 24 9 L26 11" fill="none" stroke="var(--straw)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 25 L26 25" stroke="var(--bg)" stroke-width="1.6" opacity=".55"/></svg>
+      <div><b>Materials Testing Virtual Lab</b><span>Testing · Characterization · 22 experiments</span></div>
+    </a>
+    <div class="spacer"></div>
+    <button class="iconbtn" id="themeBtn" title="Switch colour theme">Auto</button>
+  </div>
+</header>
+<main id="app"></main>
+
+<script src="assets/js/core.js"></script>
+<script src="assets/js/gfx.js"></script>
+<script src="assets/js/exp/01-tensile.js"></script>
+<script src="assets/js/exp/02-compression.js"></script>
+<script src="assets/js/exp/03-shear.js"></script>
+<script src="assets/js/exp/04-torsion.js"></script>
+<script src="assets/js/exp/05-bending.js"></script>
+<script src="assets/js/exp/06-impact.js"></script>
+<script src="assets/js/exp/07-fatigue.js"></script>
+<script src="assets/js/exp/08-creep.js"></script>
+<script src="assets/js/exp/09-brinell.js"></script>
+<script src="assets/js/exp/10-rockwell.js"></script>
+<script src="assets/js/exp/11-vickers.js"></script>
+<script src="assets/js/exp/12-wear.js"></script>
+<script src="assets/js/exp/13-ultrasonic.js"></script>
+<script src="assets/js/exp/14-mpi.js"></script>
+<script src="assets/js/exp/15-dpt.js"></script>
+<script src="assets/js/exp/16-specprep.js"></script>
+<script src="assets/js/exp/17-microstructure.js"></script>
+<script src="assets/js/exp/18-grainsize.js"></script>
+<script src="assets/js/exp/19-jominy.js"></script>
+<script src="assets/js/exp/20-heattreat.js"></script>
+<script src="assets/js/exp/21-xrd.js"></script>
+<script src="assets/js/exp/22-sem.js"></script>
+<script src="assets/js/nomenclature.js"></script>
+<script src="assets/js/setup.js"></script>
+<script>LAB.boot();</script>
+</body>
+</html>
