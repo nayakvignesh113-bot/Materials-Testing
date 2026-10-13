@@ -5601,7 +5601,7 @@ table.t tr:last-child td{border-bottom:0}
   EXT.submitUrl = () => CFG.submitUrl || '';
   EXT.fbHTML = function (S) {
     const F = S.feedback;
-    if (F) return `<div class="panel fbdone" id="fbbox"><div><b class="ok">✓ Feedback recorded</b><br><span class="muted" style="font-size:.8rem">${new Date(F.t).toLocaleString()}${F.sent === true ? ' · sent to your faculty' : F.sent === false ? ' · saved on this device' : ''}. Print, download and submit are unlocked.</span></div><button class="btn quiet small" type="button" id="fbedit">Change my feedback</button></div>`;
+    if (F) return `<div class="panel fbdone" id="fbbox"><div><b class="ok">✓ Feedback recorded</b><br><span class="muted" style="font-size:.8rem">${new Date(F.t).toLocaleString()}${F.sent === true ? ' · received by your faculty’s sheet' : F.sent === 'unconfirmed' ? ' · sent, but the sheet’s reply could not be read; ask your faculty to confirm' : F.sent === false ? ' · saved on this device' : ''}. Print, download and submit are unlocked.</span></div><button class="btn quiet small" type="button" id="fbedit">Change my feedback</button></div>`;
     const D = S.fbd || (S.fbd = {});
     return `<fieldset class="panel fbform" id="fbbox"><legend><b>Feedback on this experiment</b> <span class="muted" style="font-size:.78rem">(required to print, download or submit)</span></legend>
       <p class="muted" style="font-size:.78rem;margin:0 0 6px">Your honest answers help improve the lab.${CFG.submitUrl ? ' They are sent to your faculty with your name and USN.' : ''}</p>
@@ -5612,6 +5612,7 @@ table.t tr:last-child td{border-bottom:0}
       <div class="field"><label for="fb-help">What helped you most? (required)</label><textarea id="fb-help" rows="2">${esc(D.helped || '')}</textarea></div>
       <div class="field"><label for="fb-conf">What was confusing or did not work? (optional)</label><textarea id="fb-conf" rows="2">${esc(D.confusing || '')}</textarea></div>
       <div class="field"><label for="fb-sug">One suggestion (optional)</label><textarea id="fb-sug" rows="2">${esc(D.suggest || '')}</textarea></div>
+      ${CFG.submitUrl ? `<div class="field"><label for="fb-code">Class code (from your faculty)</label><input type="text" id="fb-code" autocomplete="off" value="${esc(LAB.Store.get('classCode', ''))}"></div>` : ''}
       <div class="controls"><button class="btn small" type="button" id="fbsend">Submit feedback</button><span class="muted" id="fbmsg" style="font-size:.8rem" aria-live="polite"></span></div></fieldset>`;
   };
   async function post(d) { try { const r = await fetch(CFG.submitUrl, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(d) }); return await r.json(); } catch (er) { return { unconfirmed: true }; } }
@@ -5619,6 +5620,7 @@ table.t tr:last-child td{border-bottom:0}
     const ed = $('#fbedit'); if (ed) { ed.onclick = () => { S.fbd = { ...S.feedback }; delete S.feedback; LAB.save(e.id); rerender(); }; return; }
     const box = $('#fbbox'); if (!box) return; const D = S.fbd || (S.fbd = {});
     box.addEventListener('change', ev => { const t = ev.target; if (t.name && t.name.startsWith('fb-')) D[t.name.slice(3)] = +t.value; if (t.id === 'fb-time') D.time = t.value; if (t.id === 'fb-dev') D.device = t.value; LAB.save(e.id); });
+    const fc = $('#fb-code'); if (fc) fc.oninput = ev => { LAB.Store.set('classCode', ev.target.value); const rk = $('#rk'); if (rk) rk.value = ev.target.value; };
     [['fb-help', 'helped'], ['fb-conf', 'confusing'], ['fb-sug', 'suggest']].forEach(([id, k]) => { $('#' + id).oninput = ev => { D[k] = ev.target.value; LAB.save(e.id); }; });
     $('#fbsend').onclick = async () => {
       const m = $('#fbmsg'); const st = stu();
@@ -5626,12 +5628,14 @@ table.t tr:last-child td{border-bottom:0}
       const miss = FBQ.map(([k], i) => D[k] ? 0 : i + 1).filter(Boolean); if (miss.length) { m.innerHTML = `<span class="bad">Rate every statement. Missing: ${miss.join(', ')}.</span>`; return; }
       if (!D.time || !D.device) { m.innerHTML = '<span class="bad">Choose the time spent and the device used.</span>'; return; }
       if ((D.helped || '').trim().length < 5) { m.innerHTML = '<span class="bad">Tell us briefly what helped you most.</span>'; return; }
+      if (CFG.submitUrl && !(LAB.Store.get('classCode', '') || '').trim()) { m.innerHTML = '<span class="bad">Enter the class code your faculty gave you.</span>'; return; }
       const F = { ...D, t: new Date().toISOString(), sent: null };
       if (CFG.submitUrl) { $('#fbsend').disabled = true; m.textContent = 'Sending…';
         const r = await post({ type: 'feedback', version: VERSION, reportId: LAB.reportId(e, S), experiment: `Exp ${e.no} ${e.title}`, name: st.name.trim(), usn: st.usn.trim().toUpperCase(), section: st.section || '', batch: st.batch || '', institution: st.inst || '', classCode: (LAB.Store.get('classCode', '') || '').trim(), q1: F.q1, q2: F.q2, q3: F.q3, q4: F.q4, q5: F.q5, q6: F.q6, time: F.time, device: F.device, helped: F.helped, confusing: F.confusing || '', suggest: F.suggest || '', clientTime: F.t });
         $('#fbsend').disabled = false;
-        if (r && r.error === 'class code') { m.innerHTML = '<span class="bad">Class code not accepted.</span> Enter the class code your faculty gave you (below), then submit again.'; return; }
-        F.sent = !!(r && (r.ok || r.unconfirmed)); } else F.sent = false;
+        if (r && r.error === 'class code') { m.innerHTML = '<span class="bad">Class code not accepted.</span> Enter the class code your faculty gave you in the field above, then submit again.'; return; }
+        if (r && r.error && !r.unconfirmed) { m.innerHTML = '<span class="bad">Not recorded: ' + esc(r.error) + '.</span> Try again.'; return; }
+        F.sent = r && r.ok ? true : 'unconfirmed'; } else F.sent = false;
       S.feedback = F; delete S.fbd; LAB.save(e.id); rerender();
     };
   };
@@ -5641,7 +5645,7 @@ table.t tr:last-child td{border-bottom:0}
       <button class="btn" type="button" id="rsub" ${url ? '' : 'disabled'}>Submit to faculty</button><span class="muted" id="rsubmsg" style="font-size:.8rem" aria-live="polite">${!url ? 'Submission is not set up for this copy of the lab. Print or download the report instead.' : sub ? `Last submitted ${new Date(sub.t).toLocaleString()} (Report ID ${esc(sub.id)}). You can submit again; your faculty sees every submission.` : 'Submitting sends your name, USN, scores, results, conclusion and discussion answers to your faculty’s Google Sheet.'}</span></div>`;
   };
   EXT.submitBind = function (e, S, payload) {
-    const k = $('#rk'); if (k) k.oninput = ev => LAB.Store.set('classCode', ev.target.value);
+    const k = $('#rk'); if (k) k.oninput = ev => { LAB.Store.set('classCode', ev.target.value); const f = $('#fb-code'); if (f) f.value = ev.target.value; };
     const b = $('#rsub'); if (!b || !CFG.submitUrl) return;
     b.onclick = async () => {
       const m = $('#rsubmsg'); const d = payload();
