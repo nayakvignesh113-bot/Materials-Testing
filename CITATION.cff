@@ -1,0 +1,33 @@
+cff-version: 1.2.0
+message: "If you use the Materials Testing & Characterization Virtual Lab in teaching or research, please cite it as below."
+type: software
+title: "Materials Testing & Characterization Virtual Lab: an open virtual laboratory for mechanical testing, hardness, wear, NDT and metallography"
+abstract: >-
+  Browser-based virtual laboratory with 22 experiments in materials testing and
+  characterization: tensile, compression, shear, torsion, bending, impact, fatigue
+  and creep tests; Brinell, Rockwell and Vickers hardness; pin-on-disc wear;
+  ultrasonic, magnetic particle and dye penetrant testing; specimen preparation,
+  microstructure, grain size, Jominy, heat treatment, XRD and SEM/EDS. Each experiment
+  provides pre- and post-tests, theory with nomenclature and a narrated explainer,
+  a safety briefing, do-it-yourself machine set-up with interlocks, physics-based
+  simulation, validation against handbook data, randomised numericals, and a
+  watermarked lab report with uncertainty analysis.
+authors:
+  - family-names: Ullal
+    given-names: Vignesh Nayak
+    affiliation: "Department of Mechanical Engineering, Mangalore Institute of Technology & Engineering (MITE), Moodbidri, India"
+version: "2.0"
+date-released: "2026-10-13"
+license: CC-BY-NC-SA-4.0
+url: "https://nayakvignesh113-bot.github.io/Materials-Testing/"
+repository-code: "https://github.com/nayakvignesh113-bot/Materials-Testing"
+keywords:
+  - virtual laboratory
+  - materials testing
+  - materials characterization
+  - mechanical testing
+  - hardness testing
+  - non-destructive testing
+  - metallography
+  - engineering education
+  - simulation
