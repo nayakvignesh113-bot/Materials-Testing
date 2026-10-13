@@ -5,8 +5,8 @@ function canvasStub() { const ctx = new Proxy({}, { get: (t, k) => k === 'create
 const sandbox = { window: {}, console, Math, JSON, Date, setTimeout, localStorage: { getItem: () => null, setItem: () => { } },
   document: { createElement: t => t === 'canvas' ? canvasStub() : ({ style: {}, setAttribute() { }, appendChild() { } }), documentElement: {}, body: {}, querySelector: () => null, styleSheets: [] },
   getComputedStyle: () => ({ getPropertyValue: () => '#000' }) };
-sandbox.window = sandbox; vm.createContext(sandbox);
-const files = ['assets/js/core.js', 'assets/js/gfx.js', ...fs.readdirSync(path.join(root, 'assets/js/exp')).filter(f => f.endsWith('.js')).sort().map(f => 'assets/js/exp/' + f), 'assets/js/nomenclature.js', 'assets/js/setup.js'];
+sandbox.fetch = () => Promise.reject(new Error('no fetch')); sandbox.window = sandbox; vm.createContext(sandbox);
+const files = ['assets/js/core.js', 'assets/js/gfx.js', ...fs.readdirSync(path.join(root, 'assets/js/exp')).filter(f => f.endsWith('.js')).sort().map(f => 'assets/js/exp/' + f), 'assets/js/nomenclature.js', 'assets/js/setup.js', 'assets/js/expl.js', 'assets/js/safety.js', 'assets/js/numericals.js', 'assets/js/site.js', 'assets/js/cert.js'];
 for (const f of files) { try { vm.runInContext(fs.readFileSync(path.join(root, f), 'utf8'), sandbox, { filename: f }); } catch (e) { console.log('LOAD FAIL', f, e.message); } }
 const LAB = sandbox.LAB; let fails = 0;
 const only = process.argv[2];
@@ -15,6 +15,13 @@ for (const e of LAB.list) {
   const req = ['pre', 'post', 'theory', 'procedure', 'precautions', 'applications', 'formulas', 'apparatus', 'objectives', 'errors', 'discussion', 'refs', 'summary', 'opSteps'];
   const miss = req.filter(k => !e[k]); if (miss.length) { console.log(e.id, 'MISSING', miss); fails++; }
   if (!LAB.suSteps(e).length) { console.log(e.id, 'NO SETUP STEPS'); fails++; }
+  LAB.suSteps(e).forEach((st, i) => { if (!st.why) { console.log(e.id, 'setup step without interlock reason', i); fails++; } });
+  const Z = LAB.SAFETY[e.id]; if (!Z || !['haz', 'ppe', 'rules', 'emerg'].every(k => Z[k] && Z[k].length)) { console.log(e.id, 'SAFETY incomplete'); fails++; }
+  const Lb = LAB.LIB[e.id]; if (!Lb || !Lb.rows.length || Lb.rows.some(r => r.length !== Lb.cols.length)) { console.log(e.id, 'LIB bad'); fails++; }
+  if (!LAB.VALID[e.id]) { console.log(e.id, 'no validation status'); fails++; }
+  const X = LAB.EXPL[e.id]; if (!X || X.scenes.length < 2) { console.log(e.id, 'EXPL missing'); fails++; } else { const nsu = LAB.suSteps(e).length; X.scenes.forEach((sc, si) => { sc.lines.forEach(l => { if (l[1] && l[1].s != null && l[1].s >= nsu) { console.log(e.id, 'expl cue beyond setup steps', si, l[1].s); fails++; } }); if (sc.q && (sc.q.a >= sc.q.o.length || !sc.q.why)) { console.log(e.id, 'expl q bad', si); fails++; } }); }
+  const NG = LAB.NUM[e.id]; if (!NG || NG.length !== 3) { console.log(e.id, 'NUM count', NG && NG.length); fails++; }
+  else NG.forEach((gen, k) => { for (let sd = 1; sd <= 200; sd++) { const o = gen(LAB.U.rng(sd * 104729 + k)); if (!isFinite(o.ans) || o.ans <= 0 || !o.q || !o.sol || !o.unit || !o.hints || o.hints.length < 2 || /NaN|undefined|Infinity/.test(o.q + o.sol + o.hints.join(''))) { console.log(e.id, 'NUM', k, sd, o.ans, o.q.slice(0, 80)); fails++; break; } } });
   const nom = LAB.nomenclature ? LAB.nomenclature(e) : [];
   if (!nom.length) { console.log(e.id, 'NO NOMENCLATURE'); fails++; }
   nom.forEach(r => { if (r.length !== 3 || r.some(x => !String(x).trim())) { console.log(e.id, 'bad nomenclature row', r); fails++; } });

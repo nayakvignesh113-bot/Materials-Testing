@@ -1,0 +1,725 @@
+{
+ "tensile": {
+  "name": "Tensile Test",
+  "theory": [
+   "The tension test is the primary acceptance test for metallic materials. It gives the design properties (yield and tensile strength), the stiffness (E) and the ductility (elongation and reduction of area) from a single specimen, under conditions defined precisely by IS 1608 (Part 1) and ASTM E8/E8M.",
+   "The machine records load P against extension δ. Dividing by the original area and gauge length gives the engineering curve:",
+   "In the elastic region deformation is recoverable and stress is proportional to strain, σ = Eε. The slope is the modulus of elasticity, a property set by interatomic bonding and hardly affected by heat treatment.",
+   "Yielding. Annealed low-carbon steel shows an upper yield point followed by a sudden drop to a lower yield point. Interstitial carbon and nitrogen pin dislocations; once they break free a band of plastic deformation (Lüders band) runs along the gauge at almost constant load. FCC metals such as aluminium and copper have no yield point, so the 0.2% proof stress R_p0.2 is used: draw a line parallel to the elastic slope from ε = 0.002 and read its intersection with the curve.",
+   "Strain hardening. Beyond yield, dislocation multiplication and interaction raise the flow stress. In true terms many metals follow the Hollomon equation σ_t = Kε_t^n, where n is the strain-hardening exponent (≈0.2 for mild steel, 0.4–0.5 for annealed copper and austenitic stainless steel).",
+   "Necking. The load reaches a maximum when the increase in strength from hardening is exactly balanced by the loss of area. Considère’s criterion, dσ_t/dε_t = σ_t, gives ε_t = n at maximum load, so the true uniform strain is a direct estimate of n. Deformation then localises in a neck and the engineering stress falls until fracture.",
+   "Percentage elongation depends on gauge length because the neck contributes a fixed extension. This is why IS 1608 uses a proportional gauge length L₀ = 5.65√S₀ (equivalent to 5d for round bars): results from specimens of different size are then comparable. Reduction of area, measured at the neck, is independent of gauge length and is the better measure of a material’s capacity for local deformation.",
+   "Ductile metals give a cup-and-cone fracture: microvoids nucleate at inclusions in the neck centre, coalesce into a flat fibrous region, and the outer ring fails by shear at about 45°. Grey cast iron breaks on a flat, granular plane perpendicular to the load with almost no elongation, because graphite flakes act as internal notches.",
+   "Flow stress rises slightly with strain rate (σ ∝ ε̇^m, with m ≈ 0.01 for steel at room temperature). IS 1608 therefore limits the stress rate in the elastic range (typically 6–60 MPa/s for steel) so that results are reproducible."
+  ],
+  "expl": [
+   [
+    "A tensile test tells us how strong, how stiff and how ductile a metal is, all from one round bar pulled until it breaks.",
+    "First the diameter is measured with a micrometer at three places. The smallest cross-section carries the highest stress, so the average must be accurate.",
+    "Two light punch marks define the gauge length. In the Indian standard it is five point six five times the square root of the area, so that bars of any size give comparable elongation.",
+    "The bar goes into wedge grips that bite harder as the pull increases, and the extensometer is clipped across the gauge marks."
+   ],
+   [
+    "The crosshead now moves at a steady speed. At first load rises in a straight line with extension. Remove the load here and the bar returns to its original length.",
+    "The slope of this straight part, converted to stress and strain, is the modulus of elasticity. For steel it is about two hundred gigapascals.",
+    "Mild steel then shows a sudden drop in load: the upper and lower yield points. A band of plastic flow runs along the bar while the load stays almost constant."
+   ],
+   [
+    "Beyond yield the metal strain-hardens: it gets stronger as it stretches, so the load keeps rising, but more slowly.",
+    "At the maximum load the hardening can no longer make up for the shrinking area. A neck forms and all further stretching happens there.",
+    "The load falls until the bar breaks in a cup-and-cone fracture. The broken halves are fitted together to measure the final length and the neck diameter."
+   ]
+  ],
+  "q": [
+   "Why is the gauge length made proportional to the square root of the cross-sectional area?",
+   "During the nearly flat portion just after the load drop in mild steel, what is happening in the specimen?",
+   "What does the maximum load on the curve correspond to?"
+  ]
+ },
+ "compression": {
+  "name": "Compression Test",
+  "theory": [
+   "Many components carry compressive loads: machine beds, columns, bearings, bolted joints and timber posts. Brittle materials are much stronger in compression than in tension, and ductile materials show forming behaviour (forging, rolling) that a tensile test cannot reach because necking intervenes. The compression test covers these cases.",
+   "In grey cast iron, graphite flakes act as sharp internal cracks. Under tension they open and fracture follows at low stress. Under compression they close, so failure requires shearing of the matrix. Fracture occurs on a plane inclined at roughly 45–55° to the load axis: the plane of maximum shear stress, rotated by internal friction according to the Coulomb–Mohr criterion θ = 45° + φ/2. Compressive strength of grey iron is typically 3–4.5 times its tensile strength.",
+   "Ductile metals yield at nearly the same stress in compression as in tension, then continue to deform without fracture. If the platen faces were frictionless the cylinder would stay cylindrical and its diameter would follow volume constancy, d = d₀√(h₀/h). Friction restrains the end faces, the centre bulges and the specimen barrels. The average pressure needed rises with the aspect ratio d/h (Siebel’s equation), so short or dry specimens appear stronger. Lubrication and h/d of 1.5–2 reduce the effect; h/d much above 2 risks buckling.",
+   "Wood consists of long cellulose fibres aligned with the grain. Parallel to the grain the fibres act as columns: they carry load efficiently until local buckling (kinking) forms a crushing plane. Perpendicular to the grain the hollow cells collapse one row after another, giving a long plateau with no clear maximum, so IS 1708 reports the compressive stress at the limit of proportionality. The ratio of the two is about 6–10."
+  ],
+  "expl": [
+   [
+    "In a compression test a short specimen is squeezed between two flat platens. We measure its height and diameter with a vernier calliper.",
+    "The specimen is kept short, with height about one to two times the diameter, so that it crushes or flows instead of buckling sideways like a long column.",
+    "The platens are cleaned. Any friction at these faces will restrain the ends of a ductile specimen, so for some tests they are lubricated.",
+    "The specimen sits centrally on the lower platen. For brittle cast iron a guard is closed, because the pieces can fly out at fracture."
+   ],
+   [
+    "The upper platen comes down at a steady rate. Load rises linearly at first, and the compressometer gives the elastic modulus.",
+    "A brittle material keeps carrying load with only tiny deformation, then cracks suddenly along an inclined plane.",
+    "A ductile metal would instead yield and keep flowing, so its test is stopped at a set reduction in height rather than at fracture."
+   ],
+   [
+    "For cast iron, the maximum load divided by the original area gives the compressive strength, three to four times its tensile strength.",
+    "The fracture plane runs at about forty five to fifty five degrees to the load, showing that shear, aided by internal friction, controls failure.",
+    "For timber the direction matters: along the grain the fibres act as columns, across the grain the cells collapse gradually."
+   ]
+  ],
+  "q": [
+   "Why is a safety guard essential when compressing grey cast iron?",
+   "Why is a ductile metal compression test usually stopped at a fixed height reduction?",
+   "Graphite flakes weaken cast iron in tension. Why do they matter much less in compression?"
+  ]
+ },
+ "shear": {
+  "name": "Shear Test",
+  "theory": [
+   "Pins, rivets, bolts in clearance holes and keys fail by shearing across their section. The direct shear test reproduces this: a bar passes through a fixture and a central blade pushes it sideways. In single shear the bar is cut on one plane; in double shear the central blade cuts it on two planes at once, so the load is shared between two areas.",
+   "The calculated value is an average. The real stress distribution is not uniform: there is bearing (contact) stress on the bar from the blades and some bending, especially in single shear where the blades are offset. Double shear is preferred because it is symmetric and reduces bending, which is why ASTM B769 uses it for aluminium rivet wire.",
+   "For a ductile metal the shear stress at yield is predicted by the yield criteria: Tresca gives τ_y = 0.5σ_y and von Mises gives τ_y = 0.577σ_y. At fracture the material has strain-hardened, so the ratio of ultimate shear strength to tensile strength is higher, commonly 0.6–0.8. Design codes use this ratio when tensile data are available but shear data are not (for example IS 800 uses f_y/√3 for shear in steel members).",
+   "For brittle grey cast iron the shear strength can exceed the tensile strength, because the graphite flakes that act as cracks in tension are less effective in shear.",
+   "A ductile bar shows a smooth, burnished shear zone where the blade has sheared the material, followed by a rougher fracture zone. The proportion of burnish indicates ductility, the same feature used to judge blanking quality in sheet metal.",
+   "Three specimens are tested because individual results scatter with diameter, local hardness and fixture clearance. Report the mean, the standard deviation and the coefficient of variation; a CoV above about 5% for a homogeneous bar suggests a test problem."
+  ],
+  "expl": [
+   [
+    "Pins, rivets and keys fail by being sliced across their section. The shear test reproduces this with a round bar in a fixture.",
+    "The diameter is measured at the planes where the bar will be cut, because the shear area is calculated from it.",
+    "In double shear the bar passes through two outer blocks and a central blade. Pushing the blade down cuts the bar on two planes at once."
+   ],
+   [
+    "The central blade is pushed down at a slow, steady rate. At first the bar bears against the blade edges and bends slightly.",
+    "Then plastic shearing spreads across the section until the bar separates. The machine records the maximum load.",
+    "Three bars are tested, because each result scatters with small differences in diameter, hardness and fixture clearance."
+   ],
+   [
+    "For ductile metals the shear strength is typically sixty to eighty percent of the tensile strength.",
+    "Yield criteria predict half or about fifty eight percent at first yield. The measured ratio is higher because the metal work-hardens before it separates."
+   ]
+  ],
+  "q": [
+   "In double shear, the maximum load is divided by which area to get the shear strength?",
+   "Why are three specimens tested and reported with a standard deviation?",
+   "A designer has only tensile data for a pin material. A reasonable estimate of its ultimate shear strength is"
+  ]
+ },
+ "torsion": {
+  "name": "Torsion Test",
+  "theory": [
+   "Shafts, axles, springs and drill rods carry torque. For a solid circular bar the plane sections remain plane and radii remain straight, so the shear strain varies linearly from zero at the axis to γ = rθ/L at the surface. In the elastic range the stress follows: τ = Gγ. Integrating over the section gives the torsion equation:",
+   "A troptometer measures θ over a known gauge length while the torque is small, so G can be computed from the slope of the T–θ line. Because G = E/(2(1+ν)), torsion and tension tests together give Poisson’s ratio.",
+   "Once the surface reaches the shear yield stress, further twisting spreads a plastic annulus inward while the core remains elastic. The torque continues to rise more slowly. For an elastic–perfectly plastic material the torque tends to the fully plastic value T_p = (2/3)πr³τ_y, which is 4/3 of the torque at first yield. Applying the elastic formula τ = Tr/J to the maximum torque therefore overestimates shear strength by up to 33%; this value is called the modulus of rupture. Nadai’s analysis of the torque–twist curve gives the true surface stress; for a flat-topped curve it reduces to τ = 3T_max/(2πr³).",
+   "Unlike tension, there is no necking in torsion: the specimen’s dimensions do not change and the strain can be taken to very large values. Torsion is therefore used to measure flow curves to high strain, as needed for hot-working studies. A scribed longitudinal line becomes a helix during the test and shows the shear strain directly.",
+   "In pure shear the principal stresses are ±τ at 45° to the axis. A ductile metal, which fails in shear, breaks on a flat plane perpendicular to the axis (plane of maximum shear). A brittle material, which fails in tension, breaks on a 45° helical surface normal to the maximum tensile stress. Chalk twisted between the fingers shows the same helix."
+  ],
+  "expl": [
+   [
+    "Shafts, axles and springs carry torque. The torsion test twists a round bar and records torque against the angle of twist.",
+    "A straight line is scribed along the bar. As the bar twists, this line turns into a helix, which shows the shear strain at the surface.",
+    "Both ends are clamped in chucks, and a troptometer is fixed over a known gauge length to measure the small elastic twist."
+   ],
+   [
+    "Torque first rises in proportion to twist. From this slope and the polar moment of inertia we get the modulus of rigidity.",
+    "Shear stress is highest at the surface, so the outer fibres yield first while the core stays elastic. The curve bends over.",
+    "As twisting continues the plastic zone spreads inwards. There is no necking in torsion, so the bar can be twisted through many turns."
+   ],
+   [
+    "A ductile steel bar finally breaks on a flat plane across the axis, the plane of maximum shear stress.",
+    "A brittle cast iron bar instead breaks on a forty five degree helix, normal to the maximum tensile stress. You can see the same with a piece of chalk."
+   ]
+  ],
+  "q": [
+   "What does the scribed straight line turn into as the bar is twisted?",
+   "Where does yielding begin in a solid round bar under torque?",
+   "A twisted specimen breaks on a 45° helical surface. What does that tell you?"
+  ]
+ },
+ "bending": {
+  "name": "Bending (Flexure) Test",
+  "theory": [
+   "A beam carries load by bending: fibres on one side shorten, those on the other lengthen, and the neutral axis is unstrained. For a linearly elastic beam with plane sections remaining plane, the flexure formula applies:",
+   "Integrating the curvature 1/R = M/(EI) twice with the boundary conditions gives the deflection. For the two set-ups used here:",
+   "Since P, L, I and δ are measured, E follows. This method is useful when a specimen is too stiff or too small for an extensometer, and it is the basis of ASTM E855.",
+   "Loading in steps and unloading in the same steps checks that the beam is elastic: the readings should agree and the dial should return to zero. A difference indicates friction at supports, settlement, or local yielding. The maximum stress should be kept well below the yield strength (here ≤ 60%).",
+   "Euler–Bernoulli theory ignores shear deformation. For slender beams (L/h > 20) the error is below 1%; for deep beams Timoshenko theory adds a shear term proportional to PL/(κGA).",
+   "Timber and brittle materials are often tested to failure in bending. Applying the elastic flexure formula to the maximum load gives the modulus of rupture. Because wood is weaker in compression than in tension parallel to the grain, the top fibres yield first, the neutral axis moves down, and final failure starts in tension on the bottom face. MOR is therefore a convenient index rather than a true stress."
+  ],
+  "expl": [
+   [
+    "A beam under load bends: its top fibres shorten and its bottom fibres stretch. Measuring the deflection lets us find Young’s modulus.",
+    "The width and especially the depth are measured carefully, because stiffness depends on the cube of the depth.",
+    "The beam rests on knife edges a known span apart, and a load hanger is placed exactly at mid-span.",
+    "A dial gauge touches the beam at the load point and is set to zero."
+   ],
+   [
+    "Weights are added in equal steps. After each step the dial is read once the needle settles.",
+    "Then the weights are removed in the same steps. If the readings return along the same line and the dial goes back to zero, the beam stayed elastic."
+   ],
+   [
+    "For a central load on a simple span, deflection equals P L cubed over forty eight E I. Rearranging gives E from the slope of load against deflection.",
+    "A cantilever deflects sixteen times more for the same load and length, because the formula has three instead of forty eight in the denominator."
+   ]
+  ],
+  "q": [
+   "If you rotated a rectangular beam so that its depth doubled and its width halved, how would its stiffness change?",
+   "Why are readings also taken while unloading?",
+   "Doubling the span of a simply supported beam under the same central load multiplies the deflection by"
+  ]
+ },
+ "impact": {
+  "name": "Impact Test (Izod and Charpy)",
+  "theory": [
+   "A tensile test is slow and uses a smooth specimen. Many failures (ships, pipelines, pressure vessels, bridges) occurred by brittle fracture in steels that were ductile in the tensile test. The cause was the combination of a notch, high loading rate and low temperature. Impact tests reproduce all three in a simple, cheap test.",
+   "The pendulum of weight W and effective arm R is released from angle α. After breaking the specimen it rises to angle β on the other side. The energy absorbed is the loss of potential energy:",
+   "Some energy is lost to bearing friction and air drag. A free swing without a specimen gives rise angle β₀ < α, so the corrected energy is E = WR(cos β − cos β₀). Modern machines apply this correction on the dial.",
+   "In the Izod test the specimen is a vertical cantilever clamped at the notch, struck on the notch side 22 mm above it. In the Charpy test the specimen is a simply supported beam (40 mm span) struck behind the notch. Charpy is easier to cool or heat because the specimen is placed rather than clamped, so it is used for temperature sweeps.",
+   "Body-centred cubic metals such as ferritic steel have a yield stress that rises sharply as temperature falls (dislocation motion needs thermal activation to overcome the Peierls stress). The cleavage fracture stress changes little. Below a certain temperature the material reaches the cleavage stress before it can yield, and it breaks in a brittle manner with little energy. The energy–temperature curve is S-shaped, with an upper shelf (ductile, fibrous fracture), a lower shelf (cleavage, crystalline fracture) and a transition region. Face-centred cubic metals (aluminium, copper, austenitic stainless steel) have no such transition.",
+   "Three criteria are used: the mid-energy temperature, the temperature at which energy is 27 J (used in IS 2062 and EN 10025 steel grades), and the FATT, at which half the fracture surface is fibrous. Fine grain size, low carbon and phosphorus, and nickel additions lower the transition temperature."
+  ],
+  "expl": [
+   [
+    "The impact test measures the energy a notched bar absorbs when it is broken by a swinging pendulum at high speed.",
+    "The notch is checked with a gauge, because its depth and root radius strongly affect the result.",
+    "First the pendulum is released with no specimen. It does not quite rise to its starting height. That small loss is friction and air drag, and it is subtracted later.",
+    "For a Charpy temperature sweep each bar is soaked in a bath at its test temperature, then placed on the anvils within five seconds."
+   ],
+   [
+    "The pendulum is released. At the bottom of its swing it strikes the bar behind the notch and carries on upwards.",
+    "The more energy the bar absorbs, the lower the pendulum rises on the far side. The dial converts the rise angle into joules.",
+    "Bars tested at low temperature break with little energy and a bright, flat surface. Warmer bars absorb much more and break with a dull, fibrous surface."
+   ],
+   [
+    "Plotting energy against temperature gives an S-shaped curve with an upper shelf, a lower shelf and a transition region between them.",
+    "Ferritic steels show this transition; aluminium, copper and austenitic stainless steel do not. Engineers choose steels whose transition lies well below the service temperature."
+   ]
+  ],
+  "q": [
+   "What is the free swing without a specimen used for?",
+   "A pendulum rises almost to its release height after striking a bar. What does that mean?",
+   "A ship steel has a transition temperature of +10 °C. What does this mean for service in winter seas at 0 °C?"
+  ]
+ },
+ "fatigue": {
+  "name": "Fatigue Test (Rotating Beam)",
+  "theory": [
+   "About 80–90% of mechanical failures in service are fatigue failures: axles, crankshafts, springs, aircraft skins and welded joints that fail after many cycles of a stress that would be safe if applied once. Fatigue proceeds in three stages: crack initiation at the surface (slip bands, inclusions, machining marks), propagation by a small advance each cycle (leaving striations and beach marks), and final fast fracture when the remaining section can no longer carry the load.",
+   "In the R. R. Moore machine the specimen is loaded as a beam with a constant bending moment M = W·a over its test section, and rotated by a motor. A point on the surface passes from tension to compression and back each revolution:",
+   "Plotting stress amplitude against log N gives the S–N or Wöhler curve. In the high-cycle region (10³–10⁶) it is close to a straight line on log–log axes, the Basquin relation σ_a = σ′_f(2N)^b, with b typically −0.05 to −0.15. Steels and titanium show a horizontal portion, the endurance limit, below which no failure occurs in 10⁷ cycles; interstitial carbon and nitrogen pin dislocations and arrest microcracks. Aluminium and copper alloys show a continuously falling curve, so their fatigue strength is quoted at 10⁷ or 5 × 10⁸ cycles. Specimens that survive are called run-outs and are plotted with an arrow or open symbol.",
+   "Surface finish: machining marks are crack starters; Marin factor k_a ≈ 0.7–0.9 for turned surfaces.",
+   "Size: larger sections have more highly stressed volume and lower endurance (k_b).",
+   "Mean stress: tensile mean stress reduces the allowable amplitude, described by Goodman, Gerber or Soderberg lines.",
+   "Stress concentrations: notches reduce fatigue strength by the fatigue notch factor K_f.",
+   "Surface treatment: shot peening, nitriding and case hardening introduce compressive residual stress and improve life.",
+   "Fatigue life is inherently scattered; at a given stress, lives commonly vary by a factor of 3–10. Log N is approximately normally distributed, which is why many specimens are needed and why design curves are set below the mean."
+  ],
+  "expl": [
+   [
+    "Most machine parts that fail in service fail by fatigue: repeated stress well below the static strength.",
+    "The hourglass specimen is measured at its narrowest point, where the stress is highest, and mounted in collets.",
+    "A dead weight hangs from the specimen, so it acts as a beam under a constant bending moment."
+   ],
+   [
+    "The motor turns the specimen at four thousand five hundred revolutions per minute. Each point on the surface goes from tension to compression and back in every turn.",
+    "A tiny crack starts at the surface, grows a little each cycle, and finally the remaining section snaps. The counter stops at fracture.",
+    "Lower loads give longer lives. Below a certain stress, steel specimens survive ten million cycles: these are run-outs."
+   ],
+   [
+    "Stress amplitude is plotted against cycles to failure on a logarithmic scale. The sloping part follows Basquin’s law.",
+    "For steels the curve flattens into an endurance limit, about half the tensile strength. Aluminium alloys keep falling, so designers quote strength at a stated life."
+   ]
+  ],
+  "q": [
+   "Why is the specimen given an hourglass shape?",
+   "In a rotating-beam test, how often does a surface point go through a full stress cycle?",
+   "An aluminium bracket must last 10⁹ cycles. What can you say about its fatigue design?"
+  ]
+ },
+ "creep": {
+  "name": "Creep Test",
+  "theory": [
+   "At low temperature a metal loaded below its yield strength deforms elastically and stays put. Above about 0.4 T_m (in kelvin) atoms diffuse fast enough for dislocations to climb past obstacles and for grain boundaries to slide, so the metal keeps deforming under constant load. Turbine blades, boiler tubes, steam pipes, solder joints and lead sheathing are designed against creep.",
+   "Under constant load the strain–time curve has three stages after the instantaneous elastic strain:",
+   "Primary: the creep rate falls as the dislocation substructure hardens.",
+   "Secondary (steady state): hardening and recovery balance; the rate is constant and minimum. Designers use this rate.",
+   "Tertiary: the rate accelerates because the cross-section reduces and internal cavities grow and link; the specimen ruptures.",
+   "The stress exponent n identifies the mechanism: n ≈ 1 for diffusional creep (Nabarro–Herring, Coble) at low stress, n ≈ 3–8 for dislocation (power-law) creep. The activation energy Q is usually close to that for self-diffusion. Plotting log ε̇ against log σ at constant temperature gives n as the slope.",
+   "Creep tests that last the full design life (10⁵ h for power plants) are impractical, so short tests at higher temperature are extrapolated using time–temperature parameters. The Larson–Miller parameter LMP = T(C + log t_r) with C ≈ 20 (t_r in hours) is the most common: all stress-rupture data fall on one master curve of stress against LMP. The Monkman–Grant relation ε̇_min·t_r = constant links the steady-state rate with rupture life.",
+   "Lead melts at 600 K, so room temperature is already 0.5 T_m. Creep that would need 600 °C in steel happens at 25 °C in lead within an hour. Tin–lead solder (T_m = 456 K) is at 0.65 T_m at room temperature, which is why solder joints in electronics creep and fatigue."
+  ],
+  "expl": [
+   [
+    "Creep is slow, continuing deformation under a constant load at high temperature. It limits turbine blades, boiler tubes and solder joints.",
+    "Lead melts at only three hundred and twenty seven degrees, so room temperature is already half its absolute melting point. It creeps within an hour.",
+    "Three wires are soaked at the test temperature, then dead weights are hung gently to give three different stresses."
+   ],
+   [
+    "After the instantaneous stretch, the strain rate falls: this is primary creep, as the metal work-hardens.",
+    "Then hardening and recovery balance and the rate stays steady. This secondary, minimum creep rate is what designers use.",
+    "Finally the wire necks and internal cavities grow. The rate accelerates in tertiary creep until rupture."
+   ],
+   [
+    "Higher stress gives a much faster minimum creep rate. On log–log axes the rate rises in a straight line with stress; the slope is the Norton exponent.",
+    "An exponent of four to eight tells us that dislocations are climbing past obstacles. Rupture times at different temperatures can be combined using the Larson–Miller parameter."
+   ]
+  ],
+  "q": [
+   "Why can lead be creep-tested in a teaching lab at room temperature?",
+   "Which creep stage gives the value used for design?",
+   "If the Norton exponent is 5, what happens to the minimum creep rate when stress is increased by 20%?"
+  ]
+ },
+ "brinell": {
+  "name": "Brinell Hardness Test",
+  "theory": [
+   "Hardness is the resistance of a material to permanent indentation. It is not a fundamental property, but it correlates well with strength and wear resistance, is fast and almost non-destructive, and is therefore the most widely used test in quality control.",
+   "J. A. Brinell (1900) pressed a hardened steel ball into the surface and divided the load by the area of the spherical cap left behind. Today tungsten carbide balls are used (symbol HBW) so that the ball does not flatten on hard steels.",
+   "Indentations made with different balls are geometrically similar only if d/D is the same. Meyer showed that this requires the same value of F/D². IS 1500 therefore specifies force–diameter ratios: 30 for steel and cast iron, 10 for copper alloys and hard aluminium alloys, 5 for soft copper and aluminium, and 2.5 or 1 for bearing metals and lead. The resulting d must lie between 0.24D and 0.6D; a smaller impression is too shallow to measure accurately, while a larger one is affected by the ball’s geometry and by material piled up at the rim.",
+   "Meyer proposed dividing the load by the projected area of the impression, HM = 4F/(πd²). This is the mean contact pressure, which is closer to a physical quantity and is roughly 2.8–3 times the flow stress of the material at a representative strain of about 8%.",
+   "For steels the empirical relation σ_u (MPa) ≈ 3.45 HB holds well because both depend on the flow stress after moderate strain. It does not hold for cast irons or for strongly work-hardening alloys. Conversions between scales (ASTM E140) are approximate.",
+   "Specimen thickness at least 8 times the indentation depth, so no mark shows on the underside.",
+   "Centre of indentation at least 2.5d from the edge and 3d from adjacent indentations.",
+   "Dwell 10–15 s for steels; longer for soft metals that creep under the ball."
+  ],
+  "expl": [
+   [
+    "Hardness is resistance to permanent indentation. In the Brinell test a hard ball is pressed into the surface.",
+    "The surface is ground flat and clean so that the impression is round and its edge is easy to see.",
+    "The ball diameter and load are chosen from a force–diameter ratio: thirty for steel, ten for copper alloys, five for soft metals."
+   ],
+   [
+    "The specimen is raised to touch the ball, the full load is applied smoothly and held for ten to fifteen seconds.",
+    "After unloading, the impression diameter is measured in two directions with a microscope, and the process is repeated at fresh positions."
+   ],
+   [
+    "Brinell hardness is the load divided by the curved area of the impression. A smaller impression means a harder metal.",
+    "For steels, the tensile strength in megapascals is roughly three point four five times the Brinell number, which is why hardness is such a useful quality check."
+   ]
+  ],
+  "q": [
+   "Why is a lower force–diameter ratio used for soft copper than for steel?",
+   "Why is the load held for a dwell time instead of being removed at once?",
+   "Two steel parts read 150 HB and 300 HB. Roughly what tensile strengths would you expect?"
+  ]
+ },
+ "rockwell": {
+  "name": "Rockwell Hardness Test",
+  "theory": [
+   "S. P. Rockwell (1919) wanted a hardness test that gave an immediate reading without measuring an impression under a microscope. The test measures depth instead of area. The sequence is:",
+   "Apply a minor load F₀ = 10 kgf. The indenter penetrates slightly; this depth is the reference (the dial is set to zero).",
+   "Apply the additional load F₁ so that the total equals the major load (60, 100 or 150 kgf). The indenter goes deeper.",
+   "Remove F₁ while keeping F₀. Elastic recovery lifts the indenter partly; the remaining permanent increase in depth e is measured.",
+   "The minor load seats the indenter through surface roughness and takes up machine compliance, which is why the test can be done on machined surfaces.",
+   "There are 30 Rockwell scales. The common ones are HRC (diamond cone, 150 kgf) for hardened and tempered steels, HRB (1/16″ ball, 100 kgf) for soft steels, brass and aluminium alloys, and HRA (diamond, 60 kgf) for very hard materials such as cemented carbides and thin case-hardened layers. Superficial scales (15N, 30T etc.) use 3 kgf minor load for thin sheet and coatings.",
+   "Below about 20 the diamond cone sinks too deep and the conical shape no longer gives a consistent number; above 100 on a ball scale the ball may flatten and sensitivity is lost. A copper specimen that reads below 20 HRB should be tested on HRF (1/16″ ball, 60 kgf) or HRE (1/8″ ball, 100 kgf).",
+   "Rockwell numbers are not proportional to Vickers or Brinell numbers, because they are based on depth rather than area and on different indenter geometries. Approximate conversions use empirical tables (ASTM E140) that are specific to material class; conversions for non-ferrous alloys are less reliable."
+  ],
+  "expl": [
+   [
+    "The Rockwell test reads hardness directly from a dial, by measuring how deep the indenter sinks.",
+    "The machine is first checked on a certified test block of known hardness.",
+    "A minor load of ten kilograms seats the indenter and sets the zero, so surface roughness and machine slack do not affect the reading."
+   ],
+   [
+    "The major load pushes the indenter deeper. After a short dwell it is removed, leaving the minor load on.",
+    "The elastic part of the deformation springs back. The permanent extra depth is what the dial shows: every two micrometres is one Rockwell unit."
+   ],
+   [
+    "Hardened steel uses the C scale with a diamond cone. Soft steel, brass and aluminium use the B scale with a small steel ball.",
+    "A reading below twenty or above the scale limit means the wrong scale was chosen, and the test must be repeated."
+   ]
+  ],
+  "q": [
+   "What is the main purpose of the minor load?",
+   "A deeper permanent indentation on the same scale gives",
+   "A brass part reads 112 on the B scale. What should you do?"
+  ]
+ },
+ "vickers": {
+  "name": "Vickers and Microhardness Test",
+  "theory": [
+   "The Vickers test (Smith and Sandland, 1921) uses a square-based diamond pyramid. The 136° angle between opposite faces was chosen so that the impression matches a Brinell impression with d = 0.375D, the middle of the Brinell validity range. Because the pyramid is self-similar, impressions at all loads are geometrically similar and hardness should not depend on load.",
+   "The diamond does not deform, so one continuous scale covers everything from lead (≈ 5 HV) to cemented carbide (≈ 1800 HV). This makes Vickers the reference method for hardness conversion and research.",
+   "Macro-Vickers uses 5–100 kgf, low-load Vickers 0.2–5 kgf, and microhardness 0.01–0.2 kgf. Microhardness indentations are small enough (a few micrometres) to test individual phases, thin coatings and hardness gradients.",
+   "At low loads many materials appear harder. Causes include geometrically necessary dislocations required to accommodate the strain gradient beneath a small indentation, work-hardened surface layers from polishing, and the difficulty of resolving small diagonals. Meyer’s law F = adⁿ describes this: n = 2 means load independence, n < 2 indicates hardness increasing at low loads.",
+   "Carburising, nitriding and induction hardening produce a hard surface over a tough core. Hardness falls with depth. A microhardness traverse on a polished cross-section with indentations every 0.1 mm gives the hardness profile. ISO 2639 defines the effective case depth (CHD) as the depth at which hardness has fallen to 550 HV 1; nitrided cases use core hardness + 50 HV."
+  ],
+  "expl": [
+   [
+    "The Vickers test uses a square-based diamond pyramid. Because the pyramid is self-similar, impressions at every load are the same shape.",
+    "The specimen must be polished, because the impression may be only a few tens of micrometres across.",
+    "A load is chosen, from a few grams for thin layers to thirty kilograms for bulk metal."
+   ],
+   [
+    "The diamond is pressed in for ten to fifteen seconds, then the objective swings back over the mark.",
+    "Both diagonals are measured with a filar eyepiece and averaged. Hardness is one point eight five four four times the load over the diagonal squared."
+   ],
+   [
+    "At very small loads many metals appear harder: the indentation size effect. That is why the load is always quoted with the result.",
+    "A row of micro-indentations from the surface inwards maps how hardness falls through a carburised case. The depth where it reaches five hundred and fifty is the effective case depth."
+   ]
+  ],
+  "q": [
+   "Why can one Vickers scale cover everything from lead to tungsten carbide?",
+   "The two diagonals of an impression differ by 10%. What is the most likely cause?",
+   "Why is the load always quoted with a Vickers result, for example HV 0.5 or HV 10?"
+  ]
+ },
+ "wear": {
+  "name": "Pin-on-Disc Wear Test",
+  "theory": [
+   "Wear is the progressive loss of material from surfaces in relative motion. It limits the life of bearings, gears, brakes, cutting tools and engine components. ASTM G40 identifies adhesive, abrasive, fatigue, corrosive and erosive wear; in dry metal-on-metal sliding the first two dominate, often with oxidation.",
+   "A pin with a flat or hemispherical end is pressed against a disc rotating at constant speed. The pin traces a circular track of diameter D. Load, speed, sliding distance, counterface material and roughness, temperature and humidity are controlled, because wear is a system property, not a material property. Wear is measured by weighing the pin before and after the test, or continuously by an LVDT that follows the pin’s height loss.",
+   "Contact occurs at asperities, so the real contact area is A_r ≈ F_N/H. If each asperity contact has a probability K of producing a wear particle, the volume worn per unit distance is proportional to A_r:",
+   "K ranges from about 10⁻⁷ (lubricated, mild) to 10⁻² (severe adhesive wear of like metals). For dry sliding, K below about 10⁻⁴ usually indicates mild oxidative wear with a protective oxide layer; higher values indicate severe wear with metallic debris, delamination and material transfer.",
+   "The friction force is measured by a load cell restraining the pin arm. During running-in the contact conforms, asperities are flattened and transfer and oxide films form; μ usually rises to a peak and then settles to a steady-state value. Steady-state μ for unlubricated metals on steel is typically 0.3–0.7.",
+   "Hard ceramic reinforcements such as SiC in aluminium raise hardness and carry part of the load, reducing adhesion and wear rate, often by a factor of 2–5. At high loads, particle fracture and three-body abrasion by detached particles can reverse the benefit (mild-to-severe transition)."
+  ],
+  "expl": [
+   [
+    "Wear is the gradual loss of material from sliding surfaces. In the pin-on-disc test a stationary pin rubs on a rotating hardened disc.",
+    "The pin is cleaned and weighed to a tenth of a milligram, because the mass loss may be only a few milligrams.",
+    "It is clamped square to the disc, a dead weight sets the normal load, and the disc speed is set for the chosen sliding velocity."
+   ],
+   [
+    "When sliding starts, the friction coefficient rises to a peak as surface roughness is flattened and debris forms.",
+    "After this running-in, oxide and transfer layers stabilise and friction settles to a steady value, while the pin shortens at a steady rate."
+   ],
+   [
+    "Mass loss divided by density gives the volume worn. Divide that by load and sliding distance and you get the specific wear rate.",
+    "Archard’s law says wear volume rises with load and distance and falls with hardness. Hard particles such as silicon carbide in aluminium reduce wear several times."
+   ]
+  ],
+  "q": [
+   "Why must the pin face be square to the disc?",
+   "Why should the steady-state friction coefficient be taken from the later part of the test?",
+   "Doubling the normal load at the same sliding distance, in the mild wear regime, will roughly"
+  ]
+ },
+ "ultrasonic": {
+  "name": "Ultrasonic Flaw Detection",
+  "theory": [
+   "Ultrasound is mechanical vibration above 20 kHz. Flaw detection uses 0.5–10 MHz, where the wavelength in steel is about 0.6–12 mm. A piezoelectric crystal in the probe converts an electrical spike into a short pressure pulse. The pulse travels through the couplant into the part, reflects from any interface where the acoustic impedance Z = ρv changes, and returns to the crystal, which converts it back into a voltage. Because Z of air is about 10⁵ times smaller than that of steel, cracks and laminations reflect almost all incident sound.",
+   "The display shows amplitude against time. The initial pulse appears at zero, the back-wall echo at t = 2T/v, and a flaw echo, if present, in between. After calibrating the time base on a block of known thickness of the same material, the screen reads depth directly:",
+   "Multiple back-wall echoes from a 25 mm calibration block are equally spaced by the round-trip time. Using the spacing between B1 and B3, rather than the absolute time of B1, removes the delay through the probe wear plate and couplant.",
+   "Close to the probe, interference between waves from different parts of the crystal produces the near field, of length N = D²f/(4v), where amplitude varies erratically. Beyond N the beam diverges with half-angle sin γ = 0.51λ/D (−6 dB edge). Higher frequency gives a longer near field, a narrower beam and better resolution, but higher attenuation.",
+   "When the probe is moved across a flaw larger than the beam, the echo is maximum while the whole beam hits the flaw, and falls to half (−6 dB) when the beam axis is exactly over the flaw edge. Marking the two −6 dB positions gives the flaw length. For flaws smaller than the beam, the 6 dB method measures the beam width instead and amplitude comparison with reference reflectors (DGS or DAC methods) is used.",
+   "Amplitude decreases with distance because of scattering at grain boundaries and absorption. Coarse-grained materials such as cast austenitic stainless steel scatter strongly, producing \"grass\" noise and making inspection at high frequency difficult."
+  ],
+  "expl": [
+   [
+    "Ultrasonic testing sends short pulses of high-frequency sound into a part and listens for echoes from inside.",
+    "A normal probe sends a longitudinal wave straight down. The surface is cleaned and a film of couplant is spread on it.",
+    "Without couplant, a thin air gap would reflect almost all the sound before it entered the steel."
+   ],
+   [
+    "On a calibration block of known thickness, back-wall echoes appear at equal intervals. Their spacing gives the sound velocity.",
+    "The probe is then moved across the test block. Where a flaw lies under the probe, an extra echo appears before the back wall.",
+    "The flaw also shadows the back wall, so the back-wall echo drops while the flaw echo is high."
+   ],
+   [
+    "Depth equals velocity times the echo time divided by two, because the sound goes down and back.",
+    "To size a flaw, move the probe until its echo falls to half of its maximum on each side. Those two points mark the flaw edges: the six decibel drop method."
+   ]
+  ],
+  "q": [
+   "Why does even a thin air gap block ultrasound?",
+   "Why is the velocity found from the spacing between back-wall echoes and not from the first echo alone?",
+   "At the 6 dB drop position, where is the beam axis relative to the flaw?"
+  ]
+ },
+ "mpi": {
+  "name": "Magnetic Particle Inspection",
+  "theory": [
+   "Ferromagnetic materials (ferritic steels, cast irons, nickel, cobalt) carry magnetic flux far more easily than air. In a magnetised part with no defects the flux stays inside. A crack or inclusion that cuts across the flux path has low permeability, so flux bulges out of the surface around it, forming a leakage field with local north and south poles. Finely divided iron oxide particles, applied dry or suspended in a liquid, collect at these poles and outline the discontinuity, often many times wider than the crack itself.",
+   "Leakage is strongest when the discontinuity is perpendicular to the flux and vanishes when it is parallel. In practice discontinuities within about 45° of perpendicular are reliably detected. Every area must therefore be magnetised in two directions roughly at right angles:",
+   "Longitudinal field (coil or yoke): flux runs along the part axis; detects transverse cracks such as fatigue cracks at fillets.",
+   "Circular field (head shot or central conductor): current flows along the part, flux circles around it; detects longitudinal seams, laps and quench cracks.",
+   "For a coil shot with the part lying on the coil floor (low fill factor), ASTM E1444 gives NI = 35 000/(L/D + 2) ampere-turns for 2 ≤ L/D < 15. For direct contact (head shot), 12–36 A per mm of diameter is used. Too little current gives weak indications; too much causes particles to collect at changes in section, edges and keyways (non-relevant indications) and \"furring\" along the grain flow.",
+   "Wet fluorescent particles viewed under UV-A in a darkened booth give the highest contrast and detect very tight surface cracks. Dry powder is used on rough surfaces and hot parts. AC concentrates flux at the surface (skin effect) and is best for surface cracks; half-wave rectified DC penetrates deeper and is better for subsurface inclusions a few millimetres down.",
+   "Relevant indications come from discontinuities. Non-relevant indications come from real magnetic leakage at geometry (keyways, threads, abrupt section changes) or permeability changes (weld boundaries). False indications are particles held mechanically by roughness or scale. Only relevant indications are evaluated against acceptance criteria. After inspection the part is demagnetised."
+  ],
+  "expl": [
+   [
+    "Magnetic particle inspection finds cracks at or just below the surface of iron and steel parts.",
+    "The shaft is cleaned, and the concentration of the particle bath is checked in a settling tube.",
+    "The shaft is clamped between the head-stocks, and the field is checked with a pie gauge before inspection."
+   ],
+   [
+    "A coil gives a field along the shaft. Cracks running across the shaft cut the flux lines, force flux out into the air, and gather particles.",
+    "Current passed through the shaft gives a field around it, which reveals cracks running along the shaft."
+   ],
+   [
+    "Under ultraviolet light, fluorescent particles glow as sharp green lines over cracks.",
+    "Particles also gather at keyways and section changes when the current is too high. These are non-relevant indications and must not be confused with cracks."
+   ]
+  ],
+  "q": [
+   "Why is a pie gauge used before inspection?",
+   "With only a coil shot, which crack is most likely to be missed?",
+   "An indication follows the edge of a keyway and appears only at high current. It is"
+  ]
+ },
+ "dpt": {
+  "name": "Dye Penetrant Testing",
+  "theory": [
+   "Liquid penetrant testing relies on capillary action. A penetrant with low surface tension and good wetting (small contact angle θ) is drawn into a narrow surface opening by the pressure difference Δp = 2γ cos θ / w, which increases as the opening width w decreases. Fine cracks therefore fill readily, but they take time to fill completely.",
+   "Pre-cleaning: remove oil, paint, scale and water so that openings are not blocked.",
+   "Penetrant application and dwell: 5–30 minutes depending on material and expected flaws.",
+   "Removal of excess: for solvent-removable penetrant, wipe off with a dry lint-free cloth, then with a cloth slightly dampened with remover. Never spray remover directly onto the surface: it dissolves penetrant out of shallow flaws.",
+   "Developer: a thin, even coat of non-aqueous developer. A heavy coat masks fine indications.",
+   "Development and inspection: penetrant bleeds out into the white developer; inspect under ≥ 1000 lux white light (or UV-A for fluorescent) after 10–60 min.",
+   "Post-cleaning.",
+   "Type I (fluorescent) is more sensitive than Type II (visible red). Removal methods: A water-washable, B post-emulsifiable lipophilic, C solvent-removable, D post-emulsifiable hydrophilic. Sensitivity levels range from ½ (ultra-low) to 4 (ultra-high).",
+   "An indication is linear if its length is at least three times its width (cracks, lack of fusion, laps), and rounded otherwise (porosity). Indications are larger than the flaws because penetrant spreads in the developer; the bleed-out size relates to the volume of trapped penetrant. ASME VIII Appendix 8 considers indications with major dimension above 1.6 mm relevant and rejects any relevant linear indication, rounded indications above 4.8 mm and four or more rounded indications in a line separated by 1.6 mm or less.",
+   "PT finds only surface-breaking discontinuities; it cannot detect subsurface flaws and does not work on porous materials. Smeared metal from grinding or shot blasting can close crack openings, so such surfaces need etching before testing."
+  ],
+  "expl": [
+   [
+    "Dye penetrant testing shows cracks and pores that are open to the surface, on almost any non-porous material.",
+    "The surface must be between ten and fifty two degrees and lit with at least a thousand lux.",
+    "Cleaner, penetrant and developer must come from the same family, so that they work together."
+   ],
+   [
+    "After cleaning, red penetrant covers the weld and is left for the dwell time while capillary action draws it into openings.",
+    "The excess is wiped off with a dry cloth, then a cloth lightly dampened with remover. Spraying remover directly would wash penetrant out of shallow flaws.",
+    "A thin white developer draws the trapped penetrant back out, and red indications bleed through."
+   ],
+   [
+    "An indication three or more times as long as it is wide is linear, like a crack. Shorter, rounder ones come from pores.",
+    "Under the pressure-vessel code, any relevant linear indication rejects the weld, as do large or aligned pores."
+   ]
+  ],
+  "q": [
+   "Why can penetrant testing be used on aluminium and austenitic stainless steel while magnetic particle testing cannot?",
+   "What is the role of the white developer?",
+   "An indication is 5 mm long and 2 mm wide. How is it classified?"
+  ]
+ },
+ "specprep": {
+  "name": "Metallographic Specimen Preparation",
+  "theory": [
+   "A microscope sees only the top few micrometres of a specimen. Every cutting or abrasive step deforms the surface and leaves scratches; if the damage is not removed, it hides or imitates microstructural features. Preparation is therefore a controlled sequence where each step removes the damage of the previous one.",
+   "Specimens are cut with an abrasive wheel under flooding coolant to avoid heating, which could temper martensite or recrystallise cold-worked metal. Small or irregular specimens are mounted in resin: hot compression mounting (phenolic, 150–180 °C, about 30 MPa) is fast and gives good edge retention; cold mounting in epoxy avoids heat for heat-sensitive alloys such as age-hardened aluminium.",
+   "Silicon carbide papers from P220 to P1200 (or P2500) are used wet. At each step the specimen is rotated 90°, so it is easy to see when the scratches of the previous step have gone. Skipping grades means that the next paper must remove a much deeper damaged layer and isolated deep scratches usually survive into the polished surface.",
+   "Diamond suspensions (6 µm, 1 µm) on cloths, or alumina (1 µm, 0.05 µm colloidal), remove the remaining fine scratches and the thin deformed layer. A properly polished specimen shows no scratches at 100× and only inclusions, pores and graphite are visible before etching.",
+   "Etchants are dilute acids or salts that dissolve the surface at rates that depend on phase, composition and crystal orientation. Grain boundaries, being high-energy regions, are attacked faster and appear as dark lines. In steels, 2% Nital attacks ferrite grain boundaries and the ferrite–cementite interfaces in pearlite; Keller’s reagent outlines Al grains and colours intermetallics; alcoholic ferric chloride reveals copper alloy grains and twins. ASTM E407 lists hundreds of etchants by alloy.",
+   "Scratches: from skipped grades or contaminated cloths.",
+   "Smearing and deformed layer: soft metals (Al, Cu) need light loads and longer final polishing.",
+   "Pull-out: graphite or inclusions torn out, leaving holes.",
+   "Under-etching: faint boundaries. Over-etching: dark, stained surface, widened boundaries, pitting.",
+   "Staining: water or etchant left on the surface; rinse in alcohol and dry quickly with hot air."
+  ],
+  "expl": [
+   [
+    "To see a microstructure, we need a flat, scratch-free surface that shows the true material, not damage from cutting.",
+    "The piece is cut with an abrasive wheel under flooding coolant, because heat could temper or recrystallise the surface.",
+    "Small specimens are mounted in resin so they can be held flat during grinding."
+   ],
+   [
+    "Silicon carbide papers are used from coarse to fine. At each step the specimen is turned ninety degrees, so you can see when the old scratches have gone.",
+    "Diamond or alumina polishing then removes the finest scratches, leaving a mirror surface."
+   ],
+   [
+    "Finally the surface is etched. Grain boundaries and different phases dissolve at different rates and become visible.",
+    "Each alloy needs its own etchant and time: nital for steel, Keller’s reagent for aluminium, ferric chloride for brass. Too long darkens and stains the surface."
+   ]
+  ],
+  "q": [
+   "Why is coolant flooded over the cut?",
+   "What goes wrong if you jump from a coarse paper straight to a very fine one?",
+   "Why do grain boundaries appear as dark lines after etching?"
+  ]
+ },
+ "microstructure": {
+  "name": "Microstructure Identification",
+  "theory": [
+   "Metals are opaque, so they are examined by reflected light. Light passes through the objective onto the polished and etched surface; flat areas reflect it back into the objective and appear bright, while etched grain boundaries and rough phases scatter it and appear dark. Köhler illumination gives an even field; the aperture diaphragm controls contrast and depth of field. Useful magnification is limited by resolution (about 0.2 µm), so optical metallography works from 50× to about 1000×.",
+   "Ferrite (α): BCC iron with ≤ 0.022% C; appears as light grains with dark boundaries after Nital.",
+   "Pearlite: eutectoid mixture of ferrite and cementite (Fe₃C) lamellae formed from austenite at 727 °C; dark at low magnification, resolved as lamellae at high magnification.",
+   "Hypoeutectoid steels (< 0.77% C): pro-eutectoid ferrite + pearlite. The pearlite fraction rises linearly with carbon (lever rule).",
+   "Hypereutectoid steels (> 0.77% C): pearlite surrounded by a white pro-eutectoid cementite network along prior austenite grain boundaries.",
+   "Martensite: supersaturated BCT phase from rapid quenching; needle- or lath-like.",
+   "Grey iron contains graphite flakes (ISO 945 form I), which act as notches and give low ductility but excellent damping and machinability. Ductile (SG) iron has graphite nodules (form VI) from Mg treatment, often with a ferrite rim (bull’s-eye) in pearlite, and is strong and ductile. White iron contains no graphite; carbon is in cementite and ledeburite, so it is hard and brittle. Malleable iron is white iron annealed so that carbon forms irregular temper-carbon rosettes (form IV) in a ferrite matrix.",
+   "Al–12% Si (LM6) is near-eutectic: α-Al dendrites with an Al–Si eutectic in which Si forms dark needles (modification with Na or Sr makes them fibrous). 70/30 brass is single-phase α (FCC) and shows straight-sided annealing twins; 60/40 brass contains α and the harder, hot-workable β′ phase.",
+   "The volume fraction of a phase equals its area fraction, line fraction and point fraction (Delesse, Rosiwal and Glagolev principles). ASTM E562 places a grid of points over the image and counts points falling on the phase: V_V = P_P. The statistical uncertainty of one field is √[P(1−P)/n], so many fields are counted in practice."
+  ],
+  "expl": [
+   [
+    "Metals are opaque, so the metallurgical microscope shines light onto the polished, etched surface and collects the reflection.",
+    "The specimen is placed face down on the stage, and we start with the low-power objective to find a representative area."
+   ],
+   [
+    "The fine focus brings the structure into view. Light grains are ferrite. Dark, striped colonies are pearlite: alternating plates of ferrite and cementite.",
+    "At higher magnification the pearlite plates can be resolved; at low magnification they merge into dark patches."
+   ],
+   [
+    "The fraction of pearlite in a slowly cooled steel rises with carbon content, following the lever rule.",
+    "By laying a grid of points over the image and counting points on pearlite, we estimate its fraction and from that the carbon content."
+   ]
+  ],
+  "q": [
+   "Why do flat areas of an etched specimen look bright and boundaries look dark?",
+   "At low magnification pearlite looks dark, but at high magnification it shows stripes. Why?",
+   "A slowly cooled plain carbon steel shows about 75% pearlite. Its carbon content is about"
+  ]
+ },
+ "grainsize": {
+  "name": "Grain Size Measurement",
+  "theory": [
+   "A grain is a region of a crystal with one lattice orientation. Neighbouring grains are separated by grain boundaries, where atoms are disordered. Boundaries block dislocation motion, store energy, provide fast diffusion paths and are preferred sites for precipitation and corrosion. Grain size therefore influences almost every property.",
+   "ASTM E112 defines G through the number of grains per square inch at 100×: n = 2^(G−1). Larger G means finer grains: G = 1 is very coarse (ℓ̄ ≈ 254 µm), G = 8 is fine (ℓ̄ ≈ 22 µm). Two standard measurement methods are used:",
+   "Heyn lineal intercept method: count intercepts N of grain boundaries with test lines of total true length L_T. Mean intercept ℓ̄ = L_T/ΣN; G = −6.6457 log ℓ̄ − 3.298 (mm). Fast and less tedious; at least 50 intercepts per field and several fields are recommended.",
+   "Jeffries planimetric method: inside a circle of known area A count the grains fully inside (N_in) and those cut by the circle (N_int, counted as half). N_A = (N_in + 0.5 N_int)/A; G = 3.3219 log N_A − 2.954.",
+   "Twin boundaries in FCC metals are not counted. A triple point where the line meets a junction counts as 1.5 intercepts; a line ending inside a grain counts as ½.",
+   "Recrystallised grains coarsen at high temperature because boundary energy decreases as total boundary area decreases. Growth follows d² − d₀² = K t, with K rising exponentially with temperature. Pinning particles (AlN, Nb(C,N)) restrict growth, which is the basis of fine-grained steels.",
+   "Dislocations pile up against boundaries; finer grains mean shorter pile-ups and higher stress to activate slip in the next grain. For ferrite, σ₀ ≈ 70 MPa and k ≈ 0.74 MPa·m½. Grain refinement is the only strengthening mechanism that also improves toughness and lowers the ductile-to-brittle transition temperature."
+  ],
+  "expl": [
+   [
+    "Grain size controls strength and toughness. Before measuring, the magnification is calibrated with a stage micrometer.",
+    "Cold-rolled steel is annealed. New grains form and then grow, faster at higher temperatures."
+   ],
+   [
+    "Test lines of known length are laid across the image, and every crossing with a grain boundary is counted.",
+    "The total line length divided by the number of crossings is the mean intercept length, which converts to the A S T M grain size number."
+   ],
+   [
+    "Grains can also be counted inside a circle of known area. Both methods should agree within about half a grain size number.",
+    "Finer grains raise yield strength according to the Hall–Petch relation, and they also improve toughness."
+   ]
+  ],
+  "q": [
+   "Why is a stage micrometer used before measuring grain size?",
+   "A larger ASTM grain size number means",
+   "Which strengthening method improves both strength and low-temperature toughness of steel?"
+  ]
+ },
+ "jominy": {
+  "name": "Jominy End-Quench Hardenability",
+  "theory": [
+   "Hardness is a property of a microstructure; hardenability is a property of a steel describing how easily it forms martensite. Two steels with the same carbon content reach the same maximum hardness at a fast-cooled surface, but an alloy steel will stay hard much deeper below the surface than a plain carbon steel. Hardenability decides whether a shaft, gear or die can be hardened through its section, and what quenchant is needed.",
+   "A 25 mm diameter, 100 mm long bar is austenitised and placed in a fixture where a water jet of fixed height strikes only the bottom face. The quenched end cools at several hundred °C/s; the far end cools at a few °C/s, like a still-air cooled bar. After cooling, two opposite flats are ground 0.4 mm deep and Rockwell C hardness is measured at standard distances from the quenched end. Each distance corresponds to a known cooling rate, so one specimen records the response to the whole range of cooling rates.",
+   "Carbon sets the maximum (martensite) hardness, given by Hodge and Orehoski’s relation; martensite hardness rises steeply up to about 0.6% C.",
+   "Alloying elements (Mn, Cr, Mo, Ni, B) dissolved in austenite shift the TTT/CCT curves to longer times, so martensite forms at lower cooling rates; the curve stays high further from the quenched end.",
+   "Austenite grain size: coarser austenite grains have fewer boundary nucleation sites for pearlite, so hardenability increases slightly with austenitising temperature.",
+   "The Jominy distance to 50% martensite (J₅₀) is a convenient index. Using charts that relate Jominy distance to cooling rates at the centre or half-radius of bars quenched in oil or water, the depth of hardening in real components can be predicted. Steel specifications (SAE J1268, IS 4367) give hardenability bands with minimum and maximum curves."
+  ],
+  "expl": [
+   [
+    "Hardenability is how deep a steel can be hardened by quenching. The Jominy test measures it with one bar.",
+    "The water jet height and temperature are checked, because they set the cooling rate.",
+    "The bar is heated into the austenite range for thirty minutes."
+   ],
+   [
+    "The bar is moved to the fixture within five seconds and water sprays only on the bottom end.",
+    "The quenched end cools in seconds. Further up, cooling is slower and slower; the top cools almost like air."
+   ],
+   [
+    "Hardness is measured along ground flats. Near the quenched end it is martensite and hard; further away it falls.",
+    "Carbon sets the maximum hardness. Alloying elements such as chromium and molybdenum keep the curve high much further along."
+   ]
+  ],
+  "q": [
+   "Why must the water jet height be fixed by the standard?",
+   "Why does one Jominy bar represent many different quench rates?",
+   "Two steels have the same carbon but one has chromium and molybdenum. How do their Jominy curves differ?"
+  ]
+ },
+ "heattreat": {
+  "name": "Effect of Heat Treatment on Steel",
+  "theory": [
+   "Plain carbon steel is heated into the austenite field (above Ac₃ for hypoeutectoid steels) so that all carbon dissolves in FCC iron. Too low a temperature leaves ferrite undissolved; too high coarsens the austenite grains and increases distortion and cracking risk.",
+   "Annealing (furnace cooling, ~0.01–0.05 °C/s): austenite transforms close to A₁ to coarse lamellar pearlite plus pro-eutectoid ferrite; softest condition, best machinability and ductility.",
+   "Normalising (still air, ~1 °C/s): transformation at lower temperature gives finer pearlite and finer ferrite grains; higher strength and toughness than annealed.",
+   "Hardening (oil ~20–60 °C/s, water ~100+ °C/s at the centre of small sections): if the cooling curve misses the nose of the CCT diagram, austenite transforms by shear below M_s to martensite, a supersaturated BCT phase. Oil quenching of plain carbon steel often crosses the pearlite/bainite nose, so the structure is mixed.",
+   "As-quenched martensite is hard but brittle and contains residual stresses. Reheating below A₁ allows carbon to precipitate: ε-carbide at 100–250 °C (small hardness loss, stress relief), decomposition of retained austenite at 200–300 °C, and cementite at 250–650 °C with recovery of the ferrite matrix (troostite, then sorbite). Hardness falls continuously and toughness rises. Temperature and time act together:",
+   "so 1 h at 600 °C is roughly equivalent to 10 h at 560 °C. Some alloy steels show temper embrittlement around 250–400 °C or 450–550 °C."
+  ],
+  "expl": [
+   [
+    "Seven specimens of the same steel are numbered and heated together above the upper critical temperature.",
+    "At this temperature the steel is austenite, with all carbon dissolved.",
+    "What happens next depends only on how fast each one cools."
+   ],
+   [
+    "Cooled in the furnace, it forms soft coarse pearlite: annealed. Cooled in air, finer and harder pearlite: normalised.",
+    "Quenched in water, there is no time for carbon to diffuse, and hard martensite forms. Oil is slower and gives a mixed structure.",
+    "Tempering the quenched steel at two, four and six hundred degrees trades hardness for toughness."
+   ],
+   [
+    "Hardness falls steadily as the tempering parameter rises. Temperature and time act together, combined in the Hollomon–Jaffe parameter.",
+    "So a longer time at a lower temperature can give the same result as a short time at a higher one."
+   ]
+  ],
+  "q": [
+   "Why are all seven specimens heated together to the same temperature?",
+   "Why is martensite so hard?",
+   "A part must not be tempered above 550 °C, but the specification was written for 600 °C for 1 hour. What should you do?"
+  ]
+ },
+ "xrd": {
+  "name": "X-ray Diffraction Analysis",
+  "theory": [
+   "X-rays have wavelengths comparable to interatomic spacings (Cu Kα: 1.5406 Å). When a beam meets a crystal, waves scattered by successive parallel planes reinforce only if their path difference is a whole number of wavelengths:",
+   "In a powder sample, crystallites are randomly oriented, so for every set of planes some grains satisfy Bragg’s condition and produce a cone of diffracted X-rays. A diffractometer in Bragg–Brentano geometry rotates the specimen by θ and the detector by 2θ and records intensity against 2θ.",
+   "For a cubic lattice d = a/√N with N = h²+k²+l², so sin²θ = (λ²/4a²)N. Dividing every sin²θ by the first gives the ratios of N values. The structure factor F_hkl = Σ f_j exp[2πi(hx_j+ky_j+lz_j)] removes some reflections:",
+   "BCC: reflections only when h+k+l is even → N = 2, 4, 6, 8, 10, 12… (ratios 1:2:3:4…).",
+   "FCC: h, k, l all odd or all even → N = 3, 4, 8, 11, 12, 16… (ratios 1:1.33:2.67:3.67…).",
+   "Diamond cubic: FCC rules and h+k+l ≠ 4n+2 → N = 3, 8, 11, 16, 19… (ratios 1:2.67:3.67…).",
+   "Because Δd/d = −cot θ·Δθ, an error in θ affects d least at high angles. The lattice parameter is therefore taken from the highest-angle peak, or extrapolated against the Nelson–Riley function to θ = 90°.",
+   "A perfect large crystal gives peaks as narrow as the instrument allows. Small coherently diffracting domains (crystallites below about 100 nm) broaden peaks as 1/(L cos θ) — the Scherrer equation. Non-uniform lattice strain broadens them as tan θ. The Williamson–Hall plot of β cos θ against 4 sin θ separates the two: the intercept gives size and the slope gives microstrain. Instrumental broadening, measured on a strain-free standard such as Si SRM 640, must be subtracted first."
+  ],
+  "expl": [
+   [
+    "X-ray diffraction reveals the crystal structure. X-rays have a wavelength similar to the spacing between atomic planes.",
+    "The powder is pressed flat so that the surface sits exactly on the focusing circle of the goniometer.",
+    "The enclosure is closed and the tube is ramped up to forty kilovolts and thirty milliamps."
+   ],
+   [
+    "The tube and detector sweep together through increasing angles.",
+    "At angles where Bragg’s law is satisfied, waves from successive planes add up and a sharp peak appears.",
+    "Each peak belongs to one family of planes. Some families are missing because of the crystal’s symmetry."
+   ],
+   [
+    "The ratios of sine squared theta for successive peaks identify the lattice: for B C C they go one, two, three, four.",
+    "The highest angle peak gives the most accurate lattice parameter, and the peak width tells us the crystallite size."
+   ]
+  ],
+  "q": [
+   "Why must the powder surface be flat and at the right height?",
+   "In a BCC metal, why is there no (100) peak?",
+   "Why does a ball-milled powder give broader peaks than an annealed one?"
+  ]
+ },
+ "sem": {
+  "name": "SEM Fractography and EDS Analysis",
+  "theory": [
+   "Electrons from a field-emission or tungsten gun are accelerated (5–30 kV), focused by magnetic lenses into a probe of a few nanometres and scanned across the specimen in a raster. Detectors collect the signals emitted at each point and build an image pixel by pixel. Magnification is the ratio of the display width to the scanned width, so it can be changed continuously from ×20 to ×100 000.",
+   "Secondary electrons (SE): low-energy electrons from the top few nm; their yield depends on the surface tilt, giving topographic contrast with a large depth of field.",
+   "Backscattered electrons (BSE): high-energy beam electrons scattered back; yield rises with atomic number, giving compositional contrast.",
+   "Characteristic X-rays: emitted when inner-shell vacancies are filled; their energy identifies the element.",
+   "Microvoid coalescence (ductile overload): voids nucleate at inclusions and second-phase particles, grow and link; the surface is covered in cup-shaped dimples, often with the initiating particle visible at the bottom. Equiaxed dimples indicate tensile overload; elongated dimples indicate shear or tearing.",
+   "Cleavage: separation along specific crystal planes (e.g., {100} in ferrite) at low temperature or high strain rate; flat facets the size of grains with river patterns that converge in the direction of local crack propagation.",
+   "Intergranular: crack follows grain boundaries weakened by segregation (temper embrittlement), precipitates, hydrogen or stress-corrosion; the surface looks like a heap of grains (rock candy).",
+   "Fatigue: fine parallel ridges (striations), each marking one load cycle, perpendicular to crack growth; their spacing gives the local growth rate da/dN.",
+   "A silicon drift detector converts each X-ray photon into a charge pulse proportional to its energy. The spectrum shows characteristic peaks (Kα, Kβ, L lines) on a bremsstrahlung background. Peak energies identify elements (Fe Kα 6.40 keV, Cr Kα 5.41, Ni Kα 7.48, Cu Kα 8.05, Zn Kα 8.64, Al Kα 1.49, Si Kα 1.74 keV). Quantification corrects net intensities for atomic number, absorption and fluorescence (ZAF); with sensitivity factors the semi-quantitative estimate is C_i ∝ k_iN_i, normalised to 100%. Light elements such as C and O are poorly quantified."
+  ],
+  "expl": [
+   [
+    "A scanning electron microscope builds an image by scanning a fine electron beam over the surface.",
+    "The fracture surface is mounted on a stub with carbon tape and never touched, because fine features are easily damaged.",
+    "The chamber is closed and pumped to high vacuum, since electrons would be scattered by air."
+   ],
+   [
+    "Secondary electrons from the surface give a picture with great depth of field, ideal for rough fractures.",
+    "Dimples mean ductile tearing. Flat facets with river lines mean brittle cleavage. Grain-shaped facets mean failure along the boundaries. Fine parallel lines mean fatigue."
+   ],
+   [
+    "The beam also excites X-rays with energies that are characteristic of each element.",
+    "The EDS detector sorts them by energy. Iron shows a peak at six point four kilo electron volts, copper at eight point zero five. Peak sizes give an estimate of composition."
+   ]
+  ],
+  "q": [
+   "Why must the SEM chamber be under vacuum?",
+   "A fracture surface is covered with small cup-shaped dimples. What does that indicate?",
+   "How does EDS tell which elements are present?"
+  ]
+ }
+}

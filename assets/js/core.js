@@ -1,6 +1,6 @@
 /* Materials Testing & Characterization Virtual Lab — core engine
    Each experiment registers a definition object (see README.md). The engine provides the
-   seven-stage workflow: Pre-test → Theory → Operate → Experiment → Validation → Post-test → Report. */
+   eight-stage workflow: Pre-test → Theory → Operate → Experiment → Validation → Numericals → Post-test → Report. */
 (function () {
   'use strict';
   const LAB = (window.LAB = { exps: {}, list: [] });
@@ -18,10 +18,12 @@
     ['operate', 'Operate', 'Set up & run'],
     ['experiment', 'Experiment', 'Observe & calculate'],
     ['validation', 'Validation', 'Check results'],
+    ['num', 'Numericals', 'Randomised problems'],
     ['post', 'Post-test', 'Assess learning'],
     ['report', 'Report', 'Compile & export']
   ];
   LAB.STAGES = STAGES;
+  LAB.EMBED = (() => { try { return window.self !== window.top; } catch (e) { return true; } })();
   const EMBED = (() => { try { return window.self !== window.top; } catch (e) { return true; } })();
 
   /* ------------------------------------------------------------------ utilities */
@@ -60,6 +62,7 @@
   function st(id) { if (!memState[id]) memState[id] = Store.get('exp:' + id, {}) || {}; return memState[id]; }
   function save(id) { Store.set('exp:' + id, memState[id]); }
   LAB.state = st;
+  LAB.save = id => save(id);
 
   /* ------------------------------------------------------------------ palette & plotter */
   const PAPER = { bg: '#ffffff', ink: '#141c24', muted: '#55606b', line: '#c9d0d7', grid: '#e9edf1', s1: '#1d5a91', s2: '#c0661c', s3: '#2c7a4b', s4: '#8a3f9a', s5: '#b23b2a', s6: '#4c7c86', straw: '#a8741f', accent: '#1d5a91', ok: '#2c7a4b', bad: '#b23b2a', surface: '#ffffff' };
@@ -155,13 +158,14 @@
   const app = () => $('#app');
   let current = null; // {e, stage}
   let anim = null;
-  function stopAnim() { if (anim) { cancelAnimationFrame(anim.raf); anim = null; } }
+  function stopAnim() { if (anim) { cancelAnimationFrame(anim.raf); anim = null; } if (LAB.ext && LAB.ext.stopAudio) LAB.ext.stopAudio(); }
 
   function route() {
     stopAnim();
     const hash = location.hash.replace('#', '');
     const [id, stage] = hash.split('-s-');
-    if (id && LAB.exps[id]) openExp(LAB.exps[id], stage); else home();
+    if (id && LAB.exps[id]) openExp(LAB.exps[id], stage); else if (id === 'about' && LAB.ext && LAB.ext.about) { current = null; LAB.ext.about(app()); } else if (id === 'compare' && LAB.ext && LAB.ext.compare) { current = null; LAB.ext.compare(app()); } else if (id === 'lab') { location.replace('#' + LAB.list[0].id); return; } else if (id === 'faculty' && LAB.ext && LAB.ext.faculty) { current = null; LAB.ext.faculty(app()); } else if (id && id.startsWith('verify-') && LAB.ext && LAB.ext.verify) { current = null; LAB.ext.verify(app(), decodeURIComponent(id.slice(7))); } else home();
+    if (LAB.ext && LAB.ext.markRail) LAB.ext.markRail(id && LAB.exps[id] ? id : (['about', 'compare'].includes(id) ? id : 'home'));
     window.scrollTo(0, 0);
   }
   LAB.go = (id, stage) => { location.hash = id + (stage ? '-s-' + stage : ''); };
@@ -173,6 +177,7 @@
       case 'operate': return !!S.ran;
       case 'experiment': { const sim = getSim(e, S); if (!sim) return false; const c = e.calcs(sim, paramsOf(e, S)); return c.every(x => S.calc && S.calc[x.key] != null && S.calc[x.key] !== ''); }
       case 'validation': return !!(S.valid && S.valid.done);
+      case 'num': return !!(S.num && S.num.solved > 0);
       case 'post': return S.post && S.post.score != null;
       case 'report': return !!S.reportSeen;
     }
@@ -189,11 +194,14 @@
         <p class="eyebrow">Department of Mechanical Engineering · Virtual Laboratory</p>
         <h1 style="margin-top:10px">Materials Testing &amp;<br><em>Characterization</em> Lab</h1>
         <p class="lede">Twenty-two experiments run on physics-based models with handbook material data. Each one takes you from a readiness check to a validated, report-ready result, the way a test house issues a certificate.</p>
-        <div class="hero-stats"><div><b class="num">22</b><span>experiments</span></div><div><b class="num">5</b><span>test domains</span></div><div><b class="num">7</b><span>stages each</span></div><div><b class="num">${done}</b><span>of ${LAB.list.length * 7} stages done on this device</span></div></div>
+        <p class="credit">Developed by <b>Dr. Vignesh Nayak Ullal</b>, Department of Mechanical Engineering, MITE Moodbidri</p>
+        <div class="controls" style="margin-top:16px"><a class="btn" href="#lab">Start with Exp. 01 →</a><a class="btn quiet" href="#about">About &amp; validation</a></div>
+        <div class="hero-stats"><div><b class="num">22</b><span>experiments</span></div><div><b class="num">5</b><span>test domains</span></div><div><b class="num">${STAGES.length}</b><span>stages each</span></div><div><b class="num">${done}</b><span>of ${LAB.list.length * STAGES.length} stages done on this device</span></div></div>
       </div>
       <div class="hero-fig"><canvas id="heroChart" aria-label="Animated engineering stress–strain curves for mild steel, aluminium and cast iron"></canvas>
         <div class="cap"><span>Engineering stress–strain · Exp. 01</span><span>MS · Al 6061-T6 · Grey CI</span></div></div>`);
     el.appendChild(hero);
+    el.appendChild(h('section', { class: 'wrap' }, `<div class="feats">${[['Narrated explainers', 'Animated, voiced walk-throughs with concept checks, and a Listen button that reads the theory aloud.'], ['Safety first', 'A hazard, PPE and emergency briefing to acknowledge before the machine unlocks.'], ['Set it up yourself', 'Measure, mount, grip and zero in the right order; out-of-order actions trip an interlock.'], ['Validated models', 'Every simulator is labelled Validated, Partly validated or Teaching model, with sources.'], ['Numericals', 'Sixty-six randomised problems with graded hints and worked solutions.'], ['Report to faculty', 'Watermarked 20-section report to print, download or submit to your faculty’s sheet.']].map(f => `<div><b>${f[0]}</b><span>${f[1]}</span></div>`).join('')}</div>`));
     el.appendChild(h('section', { class: 'wrap' }, `<div class="flow">${STAGES.map((s, i) => `<div><i>STAGE ${i + 1}</i><b>${s[1]}</b><span>${s[2]}</span></div>`).join('')}</div>`));
     const list = h('section', { class: 'wrap' });
     list.innerHTML = `<div class="toolbar"><input type="text" id="q" placeholder="Search experiments, standards or materials" aria-label="Search experiments"><span class="muted" id="qn" style="font-size:.85rem"></span></div><div id="cats"></div>`;
@@ -204,7 +212,7 @@
       $('#cats').innerHTML = LAB.CATS.map(([k, name, sub]) => {
         const es = LAB.list.filter(e => e.cat === k && (!q || (e.title + ' ' + e.std + ' ' + (e.tags || '') + ' ' + e.short).toLowerCase().includes(q)));
         n += es.length; if (!es.length) return '';
-        return `<div class="cat"><div class="cat-head"><span class="eyebrow">${name}</span><span class="muted" style="font-size:.85rem">${sub}</span></div><div class="cards">${es.map(e => { const pr = progress(e); return `<a class="card" href="#${e.id}"><div class="no"><span>EXP ${String(e.no).padStart(2, '0')}</span><span>${e.std.split('/')[0].trim()}</span></div><h3>${e.title}</h3><p>${e.short}</p>${e.advanced ? '<span><span class="badge opt">Advanced</span></span>' : ''}<div class="pips" title="${pr.filter(Boolean).length} of 7 stages done">${pr.map(d => `<i class="${d ? 'on' : ''}"></i>`).join('')}</div></a>`; }).join('')}</div></div>`;
+        return `<div class="cat"><div class="cat-head"><span class="eyebrow">${name}</span><span class="muted" style="font-size:.85rem">${sub}</span></div><div class="cards">${es.map(e => { const pr = progress(e); return `<a class="card" href="#${e.id}"><div class="no"><span>EXP ${String(e.no).padStart(2, '0')}</span><span>${e.std.split('/')[0].trim()}</span></div><h3>${e.title}</h3><p>${e.short}</p><span class="chips">${e.advanced ? '<span class="badge opt">Advanced</span>' : ''}${LAB.ext && LAB.ext.chip ? LAB.ext.chip(e.id) : ''}</span><div class="pips" title="${pr.filter(Boolean).length} of ${STAGES.length} stages done">${pr.map(d => `<i class="${d ? 'on' : ''}"></i>`).join('')}</div></a>`; }).join('')}</div></div>`;
       }).join('') || '<p class="muted">No experiment matches that search.</p>';
       $('#qn').textContent = q ? n + ' found' : '';
     };
@@ -264,7 +272,7 @@
       body.innerHTML = `<div class="panel lockmsg"><h3>${why[0]}</h3><p>${why[1]}</p><p style="margin-top:14px"><button class="btn" id="golock">${why[3]}</button></p></div>`;
       $('#golock').onclick = () => switchStage(e, why[2]); return;
     }
-    ({ pre: stPre, theory: stTheory, operate: stOperate, experiment: stExperiment, validation: stValidation, post: stPost, report: stReport })[k](e, body, S);
+    ({ pre: stPre, theory: stTheory, operate: stOperate, experiment: stExperiment, validation: stValidation, num: (e, b, S) => LAB.ext.numericals(e, b, S, { save: () => save(e.id), refreshBar }), post: stPost, report: stReport })[k](e, body, S);
   }
 
   /* ------------------------------------------------------------------ quiz */
@@ -294,14 +302,15 @@
   /* ------------------------------------------------------------------ theory */
   function stTheory(e, body, S) {
     S.theorySeen = true; save(e.id); refreshBar();
-    body.innerHTML = `<div class="theory-grid"><article class="prose">${e.theory}
+    body.innerHTML = `<div class="theory-grid"><article class="prose"><div id="xslot"></div><div class="theory-body">${e.theory}</div><div id="libslot"></div>
       ${nomenclature(e).length ? `<h3>Nomenclature</h3>${nomHTML(e)}` : ''}
       <h3>Standard procedure</h3><ol>${e.procedure.map(p => `<li>${p}</li>`).join('')}</ol>
       <h3>Precautions and safety</h3><ul>${e.precautions.map(p => `<li>${p}</li>`).join('')}</ul>
       <h3>Engineering applications</h3><ul>${e.applications.map(p => `<li>${p}</li>`).join('')}</ul></article>
       <aside class="theory-side"><div class="panel"><div class="panel-h"><h4>Key formulae</h4></div><div class="formula-list">${e.formulas.map(f => `<div><b>${f[0]}</b><code>${f[1]}</code></div>`).join('')}</div></div>
       <div class="panel"><div class="panel-h"><h4>Apparatus</h4></div><ul style="margin:0;padding-left:18px;font-size:.88rem">${e.apparatus.map(a => `<li>${a}</li>`).join('')}</ul></div>
-      <div class="panel"><div class="panel-h"><h4>Standards</h4></div><p style="font-size:.88rem">${e.std}</p>${e.stdNote ? `<p class="muted" style="font-size:.82rem;margin-top:6px">${e.stdNote}</p>` : ''}</div></aside></div>`;
+      <div class="panel"><div class="panel-h"><h4>Standards</h4></div><p style="font-size:.88rem">${e.std}</p>${e.stdNote ? `<p class="muted" style="font-size:.82rem;margin-top:6px">${e.stdNote}</p>` : ''}</div><div id="valslot"></div></aside></div>`;
+    if (LAB.ext && LAB.ext.theory) LAB.ext.theory(e, body, S);
   }
 
   /* ------------------------------------------------------------------ operate */
@@ -310,18 +319,39 @@
     if (d.type === 'range') return `<div class="field"><label for="p_${d.id}">${d.label}: <b class="mono" id="pv_${d.id}">${v}</b> ${d.unit || ''}</label><input type="range" id="p_${d.id}" data-p="${d.id}" min="${d.min}" max="${d.max}" step="${d.step || 1}" value="${v}">${d.hint ? `<span class="hint">${d.hint}</span>` : ''}</div>`;
     return `<div class="field"><label for="p_${d.id}">${d.label}</label><div class="unit-in"><input type="number" id="p_${d.id}" data-p="${d.id}" min="${d.min}" max="${d.max}" step="${d.step || 'any'}" value="${v}"><span class="u">${d.unit || ''}</span></div>${d.hint ? `<span class="hint">${d.hint}</span>` : ''}</div>`;
   }
+  function safetyHTML(e) {
+    const Z = LAB.SAFETY && LAB.SAFETY[e.id]; if (!Z) return '';
+    const col = (t, arr, cls) => `<div class="sbox ${cls}"><h4>${t}</h4><ul>${arr.map(x => `<li>${x}</li>`).join('')}</ul></div>`;
+    return `<div class="sgrid">${col('Hazards', Z.haz, 'haz')}${col('Personal protective equipment', Z.ppe, 'ppe')}${col('Safe practice', Z.rules, 'rules')}${col('In an emergency', Z.emerg, 'emerg')}</div>`;
+  }
+  LAB.safetyHTML = safetyHTML;
   function stOperate(e, body, S) {
+    if (LAB.SAFETY && LAB.SAFETY[e.id] && !S.safetyAck) {
+      body.innerHTML = `<div class="panel stack sgate"><div><p class="eyebrow" style="color:var(--bad)">Safety briefing · read before operating</p><h2 style="margin-top:6px">${e.title}: hazards and safe practice</h2><p class="muted" style="margin-top:6px;max-width:75ch">In the real laboratory you would receive this briefing from the instructor before touching the machine. Read it, then acknowledge it to unlock the machine. The time of acknowledgement is recorded in your report.</p></div>${safetyHTML(e)}
+        <label class="ack"><input type="checkbox" id="sack"> I have read the hazards, will wear the listed protective equipment, and will follow the safe practice and emergency procedure.</label>
+        <div class="controls"><button class="btn" id="sgo" disabled>Acknowledge and open the machine</button></div></div>`;
+      $('#sack').onchange = ev => { $('#sgo').disabled = !ev.target.checked; };
+      $('#sgo').onclick = () => { S.safetyAck = new Date().toISOString(); save(e.id); refreshBar(); stOperate(e, body, S); };
+      return;
+    }
     const p = paramsOf(e, S);
+    const steps = suSteps(e);
+    let mode = steps.length ? Store.get('suMode', 'diy') : 'demo';
     body.innerHTML = `<div class="op-grid">
       <div class="op-side"><div class="panel"><div class="panel-h"><h4>Specimen &amp; machine</h4></div><div class="params" id="params">${(e.params || []).map(d => paramInput(d, p[d.id])).join('')}</div><p class="muted" id="pchg" style="font-size:.78rem;margin-top:10px"></p></div>
-        <div class="panel"><div class="panel-h"><h4>Procedure</h4><span class="eyebrow" id="stepk"></span></div><ol class="steps" id="opsteps">${e.opSteps.map(s => `<li>${s}</li>`).join('')}</ol></div></div>
+        ${steps.length ? `<div class="panel" id="supanel"><div class="panel-h"><h4>Machine set-up</h4><span class="eyebrow" id="sustat"></span></div>
+          <div class="seg" role="radiogroup" aria-label="Set-up mode"><button type="button" role="radio" data-m="diy">Do it yourself</button><button type="button" role="radio" data-m="demo">Watch demo</button></div>
+          <div id="sudiy"></div></div>` : ''}
+        <div class="panel"><div class="panel-h"><h4>Procedure</h4><span class="eyebrow" id="stepk"></span></div><ol class="steps" id="opsteps">${e.opSteps.map(s => `<li>${s}</li>`).join('')}</ol></div>
+        <button class="btn quiet small" id="reSafety" type="button">Safety briefing</button></div>
       <div class="stack" style="min-width:0">
         <div class="rig" id="rig">${e.svg(p)}</div>
         <div class="su-cap" id="sucap" hidden></div>
+        <div class="alarm" id="alarm" role="alert" hidden></div>
         <div class="readouts" id="readouts"></div>
         <div class="controls"><button class="btn" id="run">Run test</button><button class="btn quiet" id="pause" disabled>Pause</button><button class="btn quiet" id="reset">Reset</button><button class="btn quiet" id="suskip" hidden>Skip set-up</button>
           <label class="muted" style="font-size:.82rem;display:flex;gap:6px;align-items:center">Speed <select id="spd" style="width:auto;padding:4px 8px"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select></label>
-          <div class="progress"><i id="prog"></i></div>${suSteps(e).length ? `<label class="muted" style="font-size:.82rem;display:flex;gap:6px;align-items:center;width:100%"><input type="checkbox" id="sushow" ${Store.get('showSetup', true) ? 'checked' : ''}> Show set-up steps (measuring, mounting, gripping, zeroing) before the test</label>` : ''}</div>
+          <div class="progress"><i id="prog"></i></div></div>
         <div id="ophint"></div>
         <div class="panel liveview" id="lvwrap" hidden><div class="panel-h"><h4 id="lvtitle">Live view</h4><span class="eyebrow" id="lvsub"></span></div><div id="liveview"></div></div>
         <div class="panel chart-box" id="chartwrap" hidden><div class="panel-h"><h4 id="charttitle">Live data</h4><span class="eyebrow">recorded by data acquisition</span></div><canvas id="chart"></canvas></div>
@@ -329,18 +359,56 @@
       </div></div>`;
     const rigSvg = () => $('#rig svg');
     let sim = getSim(e, S);
-    const steps = suSteps(e); const testOp0 = steps.length ? Math.min(e.opSteps.length - 1, Math.max(...steps.map(s => s.op)) + 1) : 0;
+    let pend = null;          // specimen prepared during a do-it-yourself set-up: {seed, sim}
+    let su = { done: 0, wrong: 0, order: [] };
+    const testOp0 = steps.length ? Math.min(e.opSteps.length - 1, Math.max(...steps.map(s => s.op)) + 1) : 0;
     const markStep = (cur, label) => { const li = body.querySelectorAll('#opsteps li'); const n = li.length; li.forEach((x, i) => { x.className = i < cur ? 'past' : (i === cur ? 'cur' : ''); }); $('#stepk').textContent = label != null ? label : (cur >= n ? 'complete' : `step ${cur + 1}/${n}`); };
     const setStep = (f) => { const n = e.opSteps.length; if (f >= 1) return markStep(n); if (f <= 0 && !anim) return markStep(0, ''); const a = steps.length ? testOp0 : 0; const span = Math.max(1, n - a); markStep(Math.min(n - 1, a + Math.floor(f * span))); };
-    if (e.opSteps.length && $('#sushow')) $('#sushow').onchange = ev => Store.set('showSetup', ev.target.checked);
-    const suFrame = (k, u) => {
+    const ttlOf = (st, sm) => { if (typeof st.title !== 'function') return st.title; try { return st.title(sm, p); } catch (err) { return 'Set-up step'; } };
+    const suFrame = (k, u, sm) => {
       let svg = rigSvg();
       if (!svg || !svg._su) { $('#rig').innerHTML = e.svg(p); svg = rigSvg(); try { if (e.anim) e.anim(svg, 0, null, p); } catch (err) { } svg._su = steps.map(() => { const g = document.createElementNS('http://www.w3.org/2000/svg', 'g'); g.setAttribute('class', 'su-layer'); svg.appendChild(g); return g; }); }
-      for (let i = 0; i <= k; i++) { const ctx = suCtx(svg, i === k, sim, p); try { steps[i].draw(svg._su[i], i === k ? u : 1, ctx); } catch (err) { console.error(err); } }
-      const st = steps[k]; const cap = $('#sucap'); cap.hidden = false; const ttl = typeof st.title === 'function' ? st.title(sim, p) : st.title; cap.innerHTML = `<span class="eyebrow">Set-up ${k + 1}/${steps.length}</span><b>${ttl}</b><span>${typeof st.note === 'function' ? st.note(sim, p) : (st.note || '')}</span>`;
+      for (let i = 0; i <= k; i++) { const ctx = suCtx(svg, i === k && u < 1, sm, p); try { steps[i].draw(svg._su[i], i === k ? u : 1, ctx); } catch (err) { console.error(err); } }
+      const st = steps[k]; const cap = $('#sucap'); cap.hidden = false; const ttl = ttlOf(st, sm); cap.innerHTML = `<span class="eyebrow">Set-up ${k + 1}/${steps.length}</span><b>${ttl}</b><span>${typeof st.note === 'function' ? st.note(sm, p) : (st.note || '')}</span>`;
       $('#readouts').innerHTML = [['Set-up', `${k + 1} / ${steps.length}`, ''], ['Step', ttl, '']].map(r => `<div><span>${r[0]}</span><b>${r[1]}</b><i>${r[2] || ''}</i></div>`).join('');
       markStep(st.op, `set-up ${k + 1}/${steps.length}`);
     };
+    const alarm = (msg) => { const a = $('#alarm'); a.hidden = !msg; a.innerHTML = msg ? `<b>Interlock.</b> ${msg}` : ''; };
+    const newPend = () => { const seed = Math.floor(Math.random() * 2 ** 31); let sm = null; try { sm = e.simulate(p, U.rng(seed)); } catch (err) { console.error(err); } return sm && !sm.error ? { seed, sim: sm } : null; };
+    const drawMode = () => {
+      if (!steps.length) return;
+      body.querySelectorAll('.seg [data-m]').forEach(b => b.setAttribute('aria-checked', b.dataset.m === mode));
+      const box = $('#sudiy');
+      if (mode === 'demo') { box.innerHTML = `<p class="muted" style="font-size:.82rem;margin-top:8px">Run test plays every set-up step on the machine, then the test. Use Skip set-up to go straight to the test.</p>`; $('#sustat').textContent = ''; $('#run').disabled = !!anim; return; }
+      const left = steps.length - su.done;
+      $('#sustat').textContent = left ? `${su.done}/${steps.length} done` : 'ready';
+      if (!pend) pend = newPend();
+      if (!su.order.length) { const r = U.rng(Math.floor(Math.random() * 1e9)); su.order = steps.map((_, i) => i).sort(() => r() - .5); }
+      box.innerHTML = `<p class="muted" style="font-size:.82rem;margin:8px 0">${left ? 'Prepare the specimen and machine yourself. Choose the actions in the right order; the machine will not start until all are done.' : 'Machine ready. Press <b>Run test</b>.'}</p>
+        <div class="acts">${su.order.map(i => `<button type="button" class="act ${i < su.done ? 'ok' : ''}" data-i="${i}" ${i < su.done || anim ? 'disabled' : ''}>${i < su.done ? '✓ ' : ''}${ttlOf(steps[i], pend && pend.sim)}</button>`).join('')}</div>
+        ${su.wrong ? `<p class="muted" style="font-size:.78rem;margin-top:6px">Interlock alarms so far: ${su.wrong}</p>` : ''}`;
+      $('#run').disabled = !!anim || left > 0;
+      box.querySelectorAll('.act[data-i]').forEach(b => b.onclick = () => doAct(+b.dataset.i));
+    };
+    let suAnim = 0;
+    const doAct = (i) => {
+      if (anim || suAnim) return;
+      if (!pend) { pend = newPend(); if (!pend) { alarm('The simulator could not prepare a specimen with these settings.'); return; } }
+      if (sim) { sim = null; $('#chartwrap').hidden = true; $('#lvwrap').hidden = true; $('#after').innerHTML = ''; $('#rig').innerHTML = e.svg(p); }
+      if (i !== su.done) {
+        su.wrong++; const nx = steps[su.done];
+        alarm(`“${ttlOf(steps[i], pend.sim)}” cannot be done yet. ${nx.why ? nx.why + ' ' : ''}Next: <b>${ttlOf(nx, pend.sim)}</b>.`);
+        drawMode(); return;
+      }
+      alarm('');
+      const k = su.done, dur = (steps[k].d || 2.6) * 700; let t0 = null;
+      const step = (ts) => { if (t0 == null) t0 = ts; const u = Math.min(1, (ts - t0) * (+$('#spd').value || 1) / dur); suFrame(k, u, pend.sim); if (u < 1) suAnim = requestAnimationFrame(step); else { suAnim = 0; su.done++; drawMode(); if (su.done === steps.length) { $('#readouts').innerHTML = [['Set-up', 'complete', ''], ['Status', 'READY TO RUN', '']].map(r => `<div><span>${r[0]}</span><b>${r[1]}</b><i>${r[2]}</i></div>`).join(''); markStep(testOp0, 'ready'); } } };
+      $('#run').disabled = true; body.querySelectorAll('.act').forEach(b => b.disabled = true);
+      suAnim = requestAnimationFrame(step);
+    };
+    const resetSu = () => { if (suAnim) cancelAnimationFrame(suAnim); suAnim = 0; su = { done: 0, wrong: 0, order: [] }; pend = null; alarm(''); };
+    body.querySelectorAll('.seg [data-m]').forEach(b => b.onclick = () => { if (anim) return; mode = b.dataset.m; Store.set('suMode', mode); resetSu(); if (!sim) { $('#rig').innerHTML = e.svg(p); draw0(); } drawMode(); });
+    $('#reSafety').onclick = () => { const d = h('div', { class: 'modal', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Safety briefing' }, `<div class="modal-in"><div class="panel-h"><h3>Safety briefing: ${e.title}</h3><button class="btn quiet small" id="mclose">Close</button></div>${safetyHTML(e)}<p class="muted" style="font-size:.8rem;margin-top:8px">Acknowledged ${S.safetyAck ? new Date(S.safetyAck).toLocaleString() : ''}</p></div>`); document.body.appendChild(d); const close = () => d.remove(); $('#mclose', d).onclick = close; d.onclick = ev => { if (ev.target === d) close(); }; $('#mclose', d).focus(); };
     const draw = (f) => {
       if (!sim) return;
       if (e.anim) try { e.anim(rigSvg(), f, sim, p); } catch (err) { console.error(err); }
@@ -351,42 +419,46 @@
     };
     const finish = () => {
       $('#run').disabled = false; $('#run').textContent = 'Run again'; $('#pause').disabled = true;
-      $('#after').innerHTML = `<div class="note info" style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap"><span>Test complete. Your observations have been recorded. Run again to get a fresh specimen with new scatter.</span><button class="btn small" id="toexp">Go to Experiment →</button></div>`;
+      $('#after').innerHTML = `<div class="note info" style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap"><span>Test complete. Your observations have been recorded. ${mode === 'diy' && steps.length ? 'To test a new specimen, set up the machine again.' : 'Run again to get a fresh specimen with new scatter.'}</span><button class="btn small" id="toexp">Go to Experiment →</button></div>`;
       $('#toexp').onclick = () => switchStage(e, 'experiment');
       if (e.afterRun) e.afterRun($('#after'), sim, p, { redraw: draw, svg: rigSvg() });
+      resetSu(); drawMode();
     };
-    if (sim) { draw(1); finish(); } else { draw0(); }
     function draw0() { $('#sucap').hidden = true; $('#suskip').hidden = true; if (e.anim) try { e.anim(rigSvg(), 0, null, p); } catch (err) { } $('#readouts').innerHTML = (e.idleReadout ? e.idleReadout(p) : [['Status', 'READY', '']]).map(r => `<div><span>${r[0]}</span><b>${r[1]}</b><i>${r[2] || ''}</i></div>`).join(''); setStep(0); if (e.opHint) $('#ophint').innerHTML = `<div class="note">${e.opHint}</div>`; }
+    if (sim) { draw(1); finish(); } else { draw0(); drawMode(); }
     // param changes
     body.querySelectorAll('[data-p]').forEach(inp => {
       const upd = () => {
         const d = e.params.find(x => x.id === inp.dataset.p); let v = inp.value; if (d.type !== 'select') { v = +v; if (d.min != null) v = Math.max(d.min, v); if (d.max != null) v = Math.min(d.max, v); }
         S.params[d.id] = v; if (d.type === 'range') $('#pv_' + d.id).textContent = v;
         if (S.ran) { S.ran = false; S.valid = null; $('#pchg').textContent = 'Settings changed. The previous run was cleared; run the test again.'; }
-        save(e.id); stopAnim(); sim = null; const np = paramsOf(e, S); Object.assign(p, np);
+        save(e.id); stopAnim(); sim = null; const np = paramsOf(e, S); Object.assign(p, np); resetSu();
         $('#rig').innerHTML = e.svg(np); $('#chartwrap').hidden = true; $('#lvwrap').hidden = true; $('#after').innerHTML = ''; $('#run').textContent = 'Run test'; $('#prog').style.width = '0';
-        draw0(); refreshBar();
+        draw0(); drawMode(); refreshBar();
       };
-      inp.addEventListener(d_evt(inp), upd);
+      inp.addEventListener(inp.type === 'range' ? 'input' : 'change', upd);
     });
-    function d_evt(inp) { return inp.type === 'range' ? 'input' : 'change'; }
     $('#run').onclick = () => {
-      stopAnim(); S.seed = Math.floor(Math.random() * 2 ** 31); S.ran = false; S.valid = null; save(e.id);
-      const svg = $('#rig svg');
-      try { sim = e.simulate(p, U.rng(S.seed)); } catch (err) { console.error(err); $('#ophint').innerHTML = `<div class="note bad">The simulation could not run with these settings: ${U.esc(err.message)}</div>`; return; }
+      if (mode === 'diy' && steps.length && su.done < steps.length) { alarm(`Machine not ready. Complete the set-up first: next is <b>${ttlOf(steps[su.done], pend && pend.sim)}</b>.`); return; }
+      stopAnim(); alarm('');
+      const diy = mode === 'diy' && steps.length && pend;
+      if (diy) { S.seed = pend.seed; sim = pend.sim; } else { S.seed = Math.floor(Math.random() * 2 ** 31); try { sim = e.simulate(p, U.rng(S.seed)); } catch (err) { console.error(err); $('#ophint').innerHTML = `<div class="note bad">The simulation could not run with these settings: ${U.esc(err.message)}</div>`; return; } }
+      S.ran = false; S.valid = null; save(e.id);
       if (sim.error) { $('#ophint').innerHTML = `<div class="note bad">${sim.error}</div>`; sim = null; return; }
       $('#ophint').innerHTML = sim.warn ? `<div class="note">${sim.warn}</div>` : '';
+      S.setupLog = diy ? { mode: 'performed', alarms: su.wrong, at: new Date().toISOString() } : { mode: steps.length ? 'demonstration' : 'n/a', alarms: 0, at: new Date().toISOString() };
       $('#after').innerHTML = ''; $('#run').disabled = true; $('#pause').disabled = false; $('#pause').textContent = 'Pause';
+      body.querySelectorAll('.act,.seg button').forEach(b => b.disabled = true);
       const dur = (sim.dur || 8) * 1000; let t = 0, last = null; anim = { paused: false, raf: 0, skip: false };
-      const useSu = steps.length && (!$('#sushow') || $('#sushow').checked); const sd = steps.map(s => (s.d || 2.6) * 1000); const Ds = useSu ? sd.reduce((a, b) => a + b, 0) : 0;
-      $('#chartwrap').hidden = true; $('#lvwrap').hidden = true; $('#rig').innerHTML = e.svg(p);
+      const useSu = !diy && steps.length > 0; const sd = steps.map(s => (s.d || 2.6) * 1000); const Ds = useSu ? sd.reduce((a, b) => a + b, 0) : 0;
+      $('#chartwrap').hidden = true; $('#lvwrap').hidden = true; $('#rig').innerHTML = e.svg(p); $('#sucap').hidden = true;
       $('#suskip').hidden = !useSu; $('#suskip').onclick = () => { if (anim) anim.skip = true; };
       let inTest = !useSu;
       const loop = (ts) => {
         if (!anim) return; if (last == null) last = ts; const dt = ts - last; last = ts;
         if (!anim.paused) t += dt * (+$('#spd').value || 1);
         if (anim.skip && t < Ds) { t = Ds; anim.skip = false; }
-        if (t < Ds) { let a = 0, k = 0; while (k < sd.length - 1 && t >= a + sd[k]) { a += sd[k]; k++; } suFrame(k, U.clamp((t - a) / sd[k], 0, 1)); $('#prog').style.width = (t / (Ds + dur) * 100) + '%'; anim.raf = requestAnimationFrame(loop); return; }
+        if (t < Ds) { let a = 0, k = 0; while (k < sd.length - 1 && t >= a + sd[k]) { a += sd[k]; k++; } suFrame(k, U.clamp((t - a) / sd[k], 0, 1), sim); $('#prog').style.width = (t / (Ds + dur) * 100) + '%'; anim.raf = requestAnimationFrame(loop); return; }
         if (!inTest) { inTest = true; $('#rig').innerHTML = e.svg(p); $('#sucap').hidden = true; $('#suskip').hidden = true; }
         const f = Math.min(1, (t - Ds) / dur); draw(f); if (useSu) $('#prog').style.width = ((Ds + f * dur) / (Ds + dur) * 100) + '%';
         if (f < 1) anim.raf = requestAnimationFrame(loop); else { anim = null; S.ran = true; save(e.id); simCache[e.id + '|' + JSON.stringify(S.params) + '|' + S.seed] = sim; refreshBar(); finish(); }
@@ -394,11 +466,12 @@
       anim.raf = requestAnimationFrame(loop);
     };
     $('#pause').onclick = () => { if (!anim) return; anim.paused = !anim.paused; $('#pause').textContent = anim.paused ? 'Resume' : 'Pause'; };
-    $('#reset').onclick = () => { stopAnim(); $('#sucap').hidden = true; $('#suskip').hidden = true; S.ran = false; S.valid = null; save(e.id); sim = null; $('#rig').innerHTML = e.svg(p); $('#chartwrap').hidden = true; $('#lvwrap').hidden = true; $('#after').innerHTML = ''; $('#run').disabled = false; $('#run').textContent = 'Run test'; $('#pause').disabled = true; $('#prog').style.width = '0'; draw0(); refreshBar(); };
+    $('#reset').onclick = () => { stopAnim(); resetSu(); $('#sucap').hidden = true; $('#suskip').hidden = true; S.ran = false; S.valid = null; save(e.id); sim = null; $('#rig').innerHTML = e.svg(p); $('#chartwrap').hidden = true; $('#lvwrap').hidden = true; $('#after').innerHTML = ''; $('#run').textContent = 'Run test'; $('#pause').disabled = true; $('#prog').style.width = '0'; draw0(); drawMode(); refreshBar(); };
   }
 
   function suSteps(e) { return e.setup || (LAB.SETUP && LAB.SETUP[e.id]) || []; }
   LAB.suSteps = suSteps;
+  LAB.suCtx = (...a) => suCtx(...a);
   function suCtx(svg, active, sim, p) { const q = id => svg.querySelector('#' + id); return { svg, active, sim, p, q, set: (id, a, v) => { const el = q(id); if (el) el.setAttribute(a, v); }, show: (id, on) => { const el = q(id); if (el) el.style.display = on ? '' : 'none'; }, txt: (id, t) => { const el = q(id); if (el) el.textContent = t; }, op: (id, v) => { const el = q(id); if (el) el.setAttribute('opacity', v); } }; }
 
   /* ------------------------------------------------------------------ tables */
@@ -470,26 +543,41 @@
   LAB.fmtT = fmtT;
 
   /* ------------------------------------------------------------------ report */
+  LAB.reportId = (e, S) => e.id.toUpperCase().slice(0, 4) + '-' + String(S.seed).slice(-6);
   function stReport(e, body, S) {
     const sim = getSim(e, S), p = paramsOf(e, S); if (!sim) return;
     S.reportSeen = true; save(e.id); refreshBar();
     const stu = Store.get('student', {}) || {}; S.disc = S.disc || {};
     const calcs = e.calcs(sim, p);
     if (S.concl == null) S.concl = e.conclude ? e.conclude(sim, p, S) : '';
+    const X = LAB.ext && LAB.ext.fbHTML ? LAB.ext : null; const gate = X && !S.feedback;
     const fld = (k, l, type) => `<div class="field"><label for="r_${k}">${l}</label><input type="${type || 'text'}" id="r_${k}" data-s="${k}" value="${U.esc(stu[k] || (k === 'date' ? new Date().toISOString().slice(0, 10) : ''))}"></div>`;
     body.innerHTML = `<div class="rep-grid"><div class="rep-form no-print">
       <div class="panel stack" style="gap:10px"><h4>Report details</h4>${fld('name', 'Student name')}${fld('usn', 'USN / Roll no.')}<div class="grid2" style="gap:8px">${fld('section', 'Section')}${fld('batch', 'Batch')}</div>${fld('date', 'Date of experiment', 'date')}${fld('instructor', 'Faculty in charge')}${fld('inst', 'Institution')}</div>
       <div class="panel stack" style="gap:10px"><h4>Discussion</h4><p class="muted" style="font-size:.8rem">Answer in your own words. Your answers are printed in the report.</p>${e.discussion.map((q, i) => `<div class="field"><label for="d_${i}">${q}</label><textarea id="d_${i}" data-d="${i}">${U.esc(S.disc[i] || '')}</textarea></div>`).join('')}</div>
       <div class="panel stack" style="gap:10px"><h4>Conclusion</h4><p class="muted" style="font-size:.8rem">A draft based on your results. Edit it to state what you found.</p><textarea id="r_concl" style="min-height:140px">${U.esc(S.concl)}</textarea></div>
-      <div class="panel stack" style="gap:8px">${EMBED ? `<p class="muted" style="font-size:.82rem">Printing and downloads are disabled in this preview window. Open the lab from its hosted website to print the report or save it as PDF.</p>` : `<button class="btn" id="rprint">Print / Save as PDF</button><button class="btn quiet" id="rdl">Download report (.html)</button>`}</div>
-      </div><div><article class="sheet" id="sheet"></article></div></div>`;
+      ${X ? X.fbHTML(S) : ''}
+      <div class="panel stack" style="gap:8px"><h4>Print or download</h4>${EMBED ? `<p class="muted" style="font-size:.82rem">Printing and downloads are disabled in this preview window. Open the lab from its hosted website to print the report or save it as PDF.</p>` : `<button class="btn" id="rprint" ${gate ? 'disabled' : ''}>Print / Save as PDF</button><button class="btn quiet" id="rdl" ${gate ? 'disabled' : ''}>Download report (.html)</button>${gate ? '<span class="muted" style="font-size:.8rem">Complete the feedback form above to unlock.</span>' : ''}`}</div>
+      ${X ? X.submitHTML(S) : ''}
+      ${X && X.certHTML ? X.certHTML(e, S) : ''}
+      </div><div><article class="sheet" id="sheet"${gate ? ' data-locked' : ''}></article><p class="print-lock">Complete the feedback form in the Report stage to print this report.</p></div></div>`;
     const draw = () => { $('#sheet').innerHTML = reportHTML(e, sim, p, S, Store.get('student', {}) || {}, calcs); };
     body.querySelectorAll('[data-s]').forEach(i => i.addEventListener('input', () => { const s = Store.get('student', {}) || {}; s[i.dataset.s] = i.value; Store.set('student', s); draw(); }));
     { const s = Store.get('student', {}) || {}; if (!s.date) { s.date = new Date().toISOString().slice(0, 10); Store.set('student', s); } }
     body.querySelectorAll('[data-d]').forEach(i => i.addEventListener('input', () => { S.disc[i.dataset.d] = i.value; save(e.id); draw(); }));
     $('#r_concl').addEventListener('input', () => { S.concl = $('#r_concl').value; save(e.id); draw(); });
     draw();
-    if (!EMBED) {
+    if (X) {
+      X.fbBind(e, S, () => Store.get('student', {}) || {}, () => stReport(e, body, S));
+      X.submitBind(e, S, () => { if (gate) return {}; const s = Store.get('student', {}) || {}; const res = calcs.map(c => checkCalc(c, S.calc && S.calc[c.key])); const xs = X.xSummary(e, S) || {}; const N = S.num || {};
+        return { type: 'report', version: LAB.VERSION, reportId: LAB.reportId(e, S), experiment: `Exp ${e.no} ${e.title}`, name: (s.name || '').trim(), usn: (s.usn || '').trim().toUpperCase(), section: s.section || '', batch: s.batch || '', faculty: s.instructor || '', institution: s.inst || '', reportDate: s.date || '', classCode: (Store.get('classCode', '') || '').trim(), safetyAck: S.safetyAck || '',
+          preFirst: S.pre && S.pre.first != null ? S.pre.first : '', postFirst: S.post && S.post.first != null ? S.post.first : '', preNow: S.pre && S.pre.score != null ? S.pre.score : '', postNow: S.post && S.post.score != null ? S.post.score : '', gain: gain(S), resultsCorrect: res.filter(r => r.ok).length, resultsTotal: res.length, validationAttempts: S.valid ? S.valid.attempts : 0,
+          numSolved: N.solved || 0, numAttempted: N.attempted || 0, numWithHints: N.withHints || 0, setupMode: S.setupLog ? S.setupLog.mode : '', setupAlarms: S.setupLog ? S.setupLog.alarms : '', explRight: xs.right || 0, explN: xs.n || 0, explReplays: xs.replays || 0,
+          conclusion: S.concl || '', disc1: (S.disc || {})[0] || '', disc2: (S.disc || {})[1] || '', disc3: (S.disc || {})[2] || '', disc4: (S.disc || {})[3] || '', feedbackAt: S.feedback ? S.feedback.t : '', clientTime: new Date().toISOString() }; });
+      if (X.certBind) X.certBind(e, S, () => stReport(e, body, S));
+      if (gate) { const b = $('#rsub'); if (b) { b.disabled = true; const m = $('#rsubmsg'); if (m && X.submitUrl()) m.textContent = 'Complete the feedback form above to unlock submission.'; } }
+    }
+    if (!EMBED && !gate) {
       $('#rprint').onclick = () => window.print();
       $('#rdl').onclick = () => { const css = [...document.styleSheets].map(ss => { try { return [...ss.cssRules].map(r => r.cssText).join('\n'); } catch (x) { return ''; } }).join('\n'); const s = Store.get('student', {}) || {}; dl(`Exp${String(e.no).padStart(2, '0')}_${e.id}_${(s.usn || 'report').replace(/\W+/g, '')}.html`, `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Exp ${e.no} ${e.title} — Report</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"><style>${css}body{background:#e9edf0;padding:24px}.sheet{max-width:900px;margin:0 auto}</style></head><body><article class="sheet">${$('#sheet').innerHTML}</article></body></html>`, 'text/html'); };
     }
@@ -503,9 +591,19 @@
     if (sim.plots) sim.plots.forEach(pl => figs.push({ src: LAB.plotImage(Object.assign({}, pl, { frac: 1, title: null })), cap: pl.caption || pl.title }));
     if (e.reportFigs) e.reportFigs(sim, p, S).forEach(f => figs.push(f));
     const unc = e.uncert ? e.uncert(sim, p, S) : [];
-    const id = (e.id.toUpperCase().slice(0, 4) + '-' + String(S.seed).slice(-6));
+    const id = LAB.reportId(e, S);
     const date = stu.date || new Date().toISOString().slice(0, 10);
-    return `<header class="rh"><div><div class="inst">${U.esc(stu.inst || 'Department of Mechanical Engineering')}</div><div class="inst" style="margin-top:2px">Materials Testing &amp; Characterization Laboratory</div><h1 style="margin-top:10px">Experiment ${e.no}: ${e.title}</h1></div><div style="text-align:right;font:500 .74rem var(--f-mono);color:var(--paper-muted)">Report ID<br><b style="color:var(--paper-ink);font-size:.9rem">${id}</b><br>${date}</div></header>
+    const xs = LAB.ext && LAB.ext.xSummary ? LAB.ext.xSummary(e, S) : null, N = S.num || {}, L = S.setupLog;
+    const wm = `${id} · ${U.esc(stu.name || 'Unnamed')}${stu.usn ? ' · ' + U.esc(stu.usn) : ''}`;
+    const fdt = t => t ? new Date(t).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) : '—';
+    const record = [['Safety briefing acknowledged', S.safetyAck ? fdt(S.safetyAck) : 'Not recorded'],
+      ['Machine set-up', !L ? 'Not recorded' : L.mode === 'performed' ? `Performed by the student${L.alarms ? ` · ${L.alarms} interlock alarm${L.alarms > 1 ? 's' : ''} (actions out of order)` : ' · no interlock alarms'}` : L.mode === 'demonstration' ? 'Watched the demonstration' : 'No set-up sequence for this experiment'],
+      ['Test run', L && L.at ? fdt(L.at) : '—'],
+      ['Narrated explainer', !xs ? '—' : xs.answered ? `${xs.right} of ${xs.n} concept checks right first time${xs.replays ? ` · ${xs.replays} replay${xs.replays > 1 ? 's' : ''}` : ''}${xs.done ? ' · completed' : ''}` : 'Not watched'],
+      ['Numerical problems', N.attempted ? `${N.solved} solved of ${N.attempted} attempted${N.withHints ? ` · ${N.withHints} with hints` : ''}` : 'None attempted'],
+      ['Validation checks', S.valid ? `${S.valid.attempts} · ${S.valid.first}/${S.valid.total} within tolerance at first check` : '—'],
+      ['Student feedback', S.feedback ? 'Given ' + fdt(S.feedback.t) : 'Not given']];
+    return `<div class="wmark" aria-hidden="true">${Array(160).fill(`<span>${wm}</span>`).join('')}</div><header class="rh"><div><div class="inst">${U.esc(stu.inst || 'Department of Mechanical Engineering')}</div><div class="inst" style="margin-top:2px">Materials Testing &amp; Characterization Laboratory</div><h1 style="margin-top:10px">Experiment ${e.no}: ${e.title}</h1></div><div style="text-align:right;font:500 .74rem var(--f-mono);color:var(--paper-muted)">Report ID<br><b style="color:var(--paper-ink);font-size:.9rem">${id}</b><br>${date}</div></header>
       <div class="meta"><div><b>Name:</b> ${U.esc(stu.name || '________________')}</div><div><b>USN:</b> ${U.esc(stu.usn || '__________')}</div><div><b>Section / Batch:</b> ${U.esc((stu.section || '__') + ' / ' + (stu.batch || '__'))}</div><div><b>Faculty:</b> ${U.esc(stu.instructor || '________________')}</div><div><b>Standard:</b> ${e.std}</div><div><b>Date:</b> ${date}</div></div>
       ${H2('Aim and objectives')}<p>${e.aim}</p><ul>${e.objectives.map(o => `<li>${o}</li>`).join('')}</ul>
       ${H2('Apparatus and standards')}<ul>${e.apparatus.map(a => `<li>${a}</li>`).join('')}</ul><p><b>Governing standard(s):</b> ${e.std}${e.stdNote ? '. ' + e.stdNote : ''}</p>
@@ -513,6 +611,7 @@
       ${nomenclature(e).length ? H2('Nomenclature') + nomHTML(e) : ''}
       ${H2('Specimen details and test conditions')}${kvTable(sim.specimen || [])}
       ${H2('Procedure followed')}<ol>${e.procedure.map(s => `<li>${s}</li>`).join('')}</ol>
+      ${H2('Laboratory record')}${tableHTML({ cols: ['Item', 'Record'], textCols: [0, 1], rows: record })}
       ${H2('Observations')}${(sim.obs || []).map(t => `<h3>${t.title}</h3>${t.note ? `<p class="muted" style="font-size:.8rem">${t.note}</p>` : ''}${tableHTML(t)}`).join('')}
       ${figs.length ? H2('Graphs and figures') + figs.map((f, i) => `<img src="${f.src}" alt="${U.esc(f.cap)}"><p class="figcap">Figure ${i + 1}. ${f.cap}</p>`).join('') : ''}
       ${H2('Calculations')}${e.sample ? e.sample(sim, p, S) : ''}
@@ -522,11 +621,11 @@
       ${H2('Sources of error')}<ul>${e.errors.map(x => `<li>${x}</li>`).join('')}</ul>
       ${H2('Discussion')}${e.discussion.map((q, i) => `<h3>${i + 1}. ${q}</h3><p>${S.disc && S.disc[i] ? U.esc(S.disc[i]).replace(/\n/g, '<br>') : '<span class="muted">[Not answered]</span>'}</p>`).join('')}
       ${H2('Conclusion')}<p>${U.esc(S.concl || '').replace(/\n/g, '<br>')}</p>
-      ${H2('Assessment summary')}<div class="kpis"><div><b>${S.pre && S.pre.first != null ? S.pre.first + '%' : '—'}</b><span>Pre-test (first attempt)</span></div><div><b>${S.post && S.post.first != null ? S.post.first + '%' : '—'}</b><span>Post-test (first attempt)</span></div><div><b>${gain(S)}</b><span>Normalised learning gain g</span></div><div><b>${nOk}/${res.length}</b><span>Results within tolerance${S.valid ? ` · ${S.valid.attempts} check${S.valid.attempts > 1 ? 's' : ''}` : ''}</span></div></div><p class="muted" style="font-size:.78rem">g = (post − pre)/(100 − pre), Hake (1998). Values above 0.3 indicate medium gain, above 0.7 high gain.</p>
+      ${H2('Assessment summary')}<div class="kpis"><div><b>${S.pre && S.pre.first != null ? S.pre.first + '%' : '—'}</b><span>Pre-test (first attempt)</span></div><div><b>${S.post && S.post.first != null ? S.post.first + '%' : '—'}</b><span>Post-test (first attempt)</span></div><div><b>${gain(S)}</b><span>Normalised learning gain g</span></div><div><b>${nOk}/${res.length}</b><span>Results within tolerance${S.valid ? ` · ${S.valid.attempts} check${S.valid.attempts > 1 ? 's' : ''}` : ''}</span></div><div><b>${N.attempted ? N.solved + '/' + N.attempted : '—'}</b><span>Numericals solved${N.withHints ? ` · ${N.withHints} with hints` : ''}</span></div><div><b>${xs && xs.answered ? xs.right + '/' + xs.n : '—'}</b><span>Explainer concept checks</span></div></div><p class="muted" style="font-size:.78rem">g = (post − pre)/(100 − pre), Hake (1998). Values above 0.3 indicate medium gain, above 0.7 high gain.</p>
       ${H2('Precautions observed')}<ul>${e.precautions.map(x => `<li>${x}</li>`).join('')}</ul>
       ${H2('Engineering applications')}<ul>${e.applications.map(x => `<li>${x}</li>`).join('')}</ul>
       ${H2('References')}<ol>${e.refs.map(x => `<li>${x}</li>`).join('')}</ol>
-      <div class="sig"><div>Student</div><div>Faculty in charge</div><div>Date</div></div>`;
+      <div class="sig"><div>Student</div><div>Faculty in charge</div><div>Date</div></div><p class="rfoot">Report ID ${id} · generated by the Materials Testing &amp; Characterization Virtual Lab v${LAB.VERSION || ''} · ${new Date().toISOString().slice(0, 16).replace('T', ' ')} UTC. Values are produced by a teaching simulator.</p>`;
   }
 
   /* ------------------------------------------------------------------ boot */
