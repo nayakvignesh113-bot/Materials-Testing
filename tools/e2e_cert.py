@@ -2,6 +2,8 @@
 import asyncio, json
 from playwright.async_api import async_playwright
 CERTS = {}
+SUB = {}
+ISSUED = []
 async def main():
     async with async_playwright() as p:
         b = await p.chromium.launch(); pg = await b.new_page(viewport={'width': 1280, 'height': 900})
@@ -14,6 +16,14 @@ async def main():
                 if d.get('type') == 'certreq':
                     CERTS['MTL-EXP01-ABC123'] = dict(certId='MTL-EXP01-ABC123', name=d['name'], usn=d['usn'], section=d['section'], process=d['process'], processName=d['processName'], std=d['std'], postScore=d['postScore'], approvedOn='13 Oct 2026', approved=False, requested='13 Oct 2026')
                     out = {'ok': True, 'certId': 'MTL-EXP01-ABC123', 'status': 'pending'}
+                elif d.get('action') == 'subs':
+                    out = {'ok': True, 'rows': [{'received': '17 Oct 2026', 'reportId': SUB.get('reportId'), 'process': SUB.get('process'), 'experiment': SUB.get('experiment'), 'name': SUB.get('name'), 'usn': SUB.get('usn'), 'post': '80 %', 'hasReport': bool(SUB.get('reportHtml')), 'cert': 'none', 'certId': ''}]}
+                elif d.get('action') == 'report':
+                    out = {'ok': True, 'html': SUB.get('reportHtml', '')}
+                elif d.get('action') == 'issue':
+                    ISSUED.append(d); out = {'ok': True, 'certId': 'MTL-EXP01-ISSUED'}
+                elif d.get('type') == 'report':
+                    SUB.update(d); out = {'ok': True}
                 elif d.get('action') == 'approve':
                     for i in d['certIds']: CERTS[i]['approved'] = True
                     out = {'ok': True, 'changed': len(d['certIds'])}
@@ -48,7 +58,19 @@ async def main():
         await pg.locator('#certcv').screenshot(path='tools/shots/v2_certificate.png')
         async with pg.expect_download() as dl: await pg.click('#certpdf')
         d = await dl.value; path = await d.path(); data = open(path, 'rb').read(); print('pdf', d.suggested_filename, len(data), data[:8])
+        print('report saved:', SUB.get('process'), len(SUB.get('reportHtml', '')) // 1024, 'KB', 'logo in report:', 'class="rlogo"' in SUB.get('reportHtml', ''))
+        await pg.evaluate("location.hash='faculty'"); await pg.wait_for_timeout(300)
+        await pg.click('.factabs [data-v="subs"]'); await pg.wait_for_timeout(500)
+        print('subs:', await pg.evaluate("document.querySelector('#fmsg').textContent"))
+        await pg.screenshot(path='tools/shots/v21_faculty_subs.png', full_page=True)
+        async with pg.expect_download() as dl2: await pg.click('[data-rep]')
+        print('report download:', (await dl2.value).suggested_filename)
+        async with pg.expect_download() as dl3: await pg.click('#srepall')
+        print('bulk download:', (await dl3.value).suggested_filename)
+        await pg.click('[data-iss]'); await pg.wait_for_timeout(500); print('issued:', ISSUED[0]['process'] if ISSUED else None, ISSUED[0].get('processName') if ISSUED else '')
         await pg.evaluate("location.hash='verify-MTL-EXP01-ABC123'"); await pg.wait_for_timeout(600)
+        async with pg.expect_download() as dl4: await pg.click('#vpdf')
+        print('verify-page pdf:', (await dl4.value).suggested_filename)
         print('verify:', (await pg.evaluate("document.querySelector('#vres').textContent"))[:80])
         print('errors:', errs)
         await b.close()

@@ -67,6 +67,15 @@ Students who have passed the post-test (60 % or more by default), checked their 
 
 **Changing the wording**: the pass mark, faculty name, institution and department can be set in `config.js` (see the commented lines there).
 
+## Full reports, issuing without a request, downloads from the link (version 2.1)
+
+* **Full reports.** Each *Submit to faculty* now also saves the student's complete report (observations, graphs, calculations, uncertainty, discussion) as an HTML file in a Drive folder named **Materials Testing Virtual Lab reports**. The *Full report (Drive)* column of the Submissions sheet links to it. On the Faculty page, **Submissions & reports → Download** fetches one report; **Download … reports (one file)** puts all shown reports in a single file that prints one report per page. Reports submitted before this version have only the sheet summary.
+* **Issue certificate.** In **Submissions & reports**, students without a certificate have an **Issue certificate** button. It creates an approved certificate from their submission, even if they never requested one.
+* **Download from the link.** The verification link of an approved certificate (`…/#verify-<ID>`) has **Download certificate** buttons, so a student can download it on any computer. In **Certificate requests**, **Copy link** copies a student's link to send them.
+* **Logo.** Certificates and lab reports carry the MITE logo.
+
+**After updating `Code.gs`**: paste the new file over the old one, save, then **Deploy → Manage deployments → pencil → Version: New version → Deploy**. The URL stays the same. Google will ask you to authorise again, because the script now saves files to your Drive: choose your account, then *Advanced → Go to … (unsafe) → Allow*. Two new columns (*Experiment code*, *Full report (Drive)*) are added to the Submissions sheet automatically.
+
 ## Feedback without the sheet
 
 If `config.js` has no `submitUrl`, the feedback form is still required, but the answers stay only in the student's browser. Set up the sheet to collect them.

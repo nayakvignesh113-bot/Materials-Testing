@@ -6,7 +6,7 @@ const sandbox = { window: {}, console, Math, JSON, Date, setTimeout, localStorag
   document: { createElement: t => t === 'canvas' ? canvasStub() : ({ style: {}, setAttribute() { }, appendChild() { } }), documentElement: {}, body: {}, querySelector: () => null, styleSheets: [] },
   getComputedStyle: () => ({ getPropertyValue: () => '#000' }) };
 sandbox.fetch = () => Promise.reject(new Error('no fetch')); sandbox.window = sandbox; vm.createContext(sandbox);
-const files = ['assets/js/core.js', 'assets/js/gfx.js', ...fs.readdirSync(path.join(root, 'assets/js/exp')).filter(f => f.endsWith('.js')).sort().map(f => 'assets/js/exp/' + f), 'assets/js/nomenclature.js', 'assets/js/setup.js', 'assets/js/expl.js', 'assets/js/safety.js', 'assets/js/numericals.js', 'assets/js/site.js', 'assets/js/cert.js'];
+const files = ['assets/js/core.js', 'assets/js/logo.js', 'assets/js/gfx.js', ...fs.readdirSync(path.join(root, 'assets/js/exp')).filter(f => f.endsWith('.js')).sort().map(f => 'assets/js/exp/' + f), 'assets/js/nomenclature.js', 'assets/js/setup.js', 'assets/js/expl.js', 'assets/js/safety.js', 'assets/js/numericals.js', 'assets/js/site.js', 'assets/js/cert.js'];
 for (const f of files) { try { vm.runInContext(fs.readFileSync(path.join(root, f), 'utf8'), sandbox, { filename: f }); } catch (e) { console.log('LOAD FAIL', f, e.message); } }
 const LAB = sandbox.LAB; let fails = 0;
 const only = process.argv[2];

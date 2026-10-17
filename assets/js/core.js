@@ -543,6 +543,13 @@
   LAB.fmtT = fmtT;
 
   /* ------------------------------------------------------------------ report */
+  // Stand-alone HTML of the report sheet (used for Download and for the copy saved to the faculty's Drive).
+  function reportDoc(e) {
+    const css = [...document.styleSheets].map(ss => { try { return [...ss.cssRules].map(r => r.cssText).join('\n'); } catch (x) { return ''; } }).join('\n');
+    const sh = $('#sheet'); const body = sh ? sh.innerHTML : '';
+    return `<!doctype html><html lang="en" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Exp ${e.no} ${e.title} — Report</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"><style>${css}body{background:#e9edf0;padding:24px}.sheet{max-width:900px;margin:0 auto}</style></head><body><article class="sheet">${body}</article></body></html>`;
+  }
+  LAB.reportDoc = reportDoc;
   LAB.reportId = (e, S) => e.id.toUpperCase().slice(0, 4) + '-' + String(S.seed).slice(-6);
   function stReport(e, body, S) {
     const sim = getSim(e, S), p = paramsOf(e, S); if (!sim) return;
@@ -573,13 +580,13 @@
         return { type: 'report', version: LAB.VERSION, reportId: LAB.reportId(e, S), experiment: `Exp ${e.no} ${e.title}`, name: (s.name || '').trim(), usn: (s.usn || '').trim().toUpperCase(), section: s.section || '', batch: s.batch || '', faculty: s.instructor || '', institution: s.inst || '', reportDate: s.date || '', classCode: (Store.get('classCode', '') || '').trim(), safetyAck: S.safetyAck || '',
           preFirst: S.pre && S.pre.first != null ? S.pre.first : '', postFirst: S.post && S.post.first != null ? S.post.first : '', preNow: S.pre && S.pre.score != null ? S.pre.score : '', postNow: S.post && S.post.score != null ? S.post.score : '', gain: gain(S), resultsCorrect: res.filter(r => r.ok).length, resultsTotal: res.length, validationAttempts: S.valid ? S.valid.attempts : 0,
           numSolved: N.solved || 0, numAttempted: N.attempted || 0, numWithHints: N.withHints || 0, setupMode: S.setupLog ? S.setupLog.mode : '', setupAlarms: S.setupLog ? S.setupLog.alarms : '', explRight: xs.right || 0, explN: xs.n || 0, explReplays: xs.replays || 0,
-          conclusion: S.concl || '', disc1: (S.disc || {})[0] || '', disc2: (S.disc || {})[1] || '', disc3: (S.disc || {})[2] || '', disc4: (S.disc || {})[3] || '', feedbackAt: S.feedback ? S.feedback.t : '', clientTime: new Date().toISOString() }; });
+          conclusion: S.concl || '', disc1: (S.disc || {})[0] || '', disc2: (S.disc || {})[1] || '', disc3: (S.disc || {})[2] || '', disc4: (S.disc || {})[3] || '', feedbackAt: S.feedback ? S.feedback.t : '', clientTime: new Date().toISOString(), process: 'EXP' + String(e.no).padStart(2, '0'), reportHtml: (() => { try { return reportDoc(e); } catch (x) { return ''; } })() }; });
       if (X.certBind) X.certBind(e, S, () => stReport(e, body, S));
       if (gate) { const b = $('#rsub'); if (b) { b.disabled = true; const m = $('#rsubmsg'); if (m && X.submitUrl()) m.textContent = 'Complete the feedback form above to unlock submission.'; } }
     }
     if (!EMBED && !gate) {
       $('#rprint').onclick = () => window.print();
-      $('#rdl').onclick = () => { const css = [...document.styleSheets].map(ss => { try { return [...ss.cssRules].map(r => r.cssText).join('\n'); } catch (x) { return ''; } }).join('\n'); const s = Store.get('student', {}) || {}; dl(`Exp${String(e.no).padStart(2, '0')}_${e.id}_${(s.usn || 'report').replace(/\W+/g, '')}.html`, `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Exp ${e.no} ${e.title} — Report</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"><style>${css}body{background:#e9edf0;padding:24px}.sheet{max-width:900px;margin:0 auto}</style></head><body><article class="sheet">${$('#sheet').innerHTML}</article></body></html>`, 'text/html'); };
+      $('#rdl').onclick = () => { const s = Store.get('student', {}) || {}; dl(`Exp${String(e.no).padStart(2, '0')}_${e.id}_${(s.usn || 'report').replace(/\W+/g, '')}.html`, reportDoc(e), 'text/html'); };
     }
   }
   function reportHTML(e, sim, p, S, stu, calcs) {
@@ -603,7 +610,7 @@
       ['Numerical problems', N.attempted ? `${N.solved} solved of ${N.attempted} attempted${N.withHints ? ` · ${N.withHints} with hints` : ''}` : 'None attempted'],
       ['Validation checks', S.valid ? `${S.valid.attempts} · ${S.valid.first}/${S.valid.total} within tolerance at first check` : '—'],
       ['Student feedback', S.feedback ? 'Given ' + fdt(S.feedback.t) : 'Not given']];
-    return `<div class="wmark" aria-hidden="true">${Array(160).fill(`<span>${wm}</span>`).join('')}</div><header class="rh"><div><div class="inst">${U.esc(stu.inst || 'Department of Mechanical Engineering')}</div><div class="inst" style="margin-top:2px">Materials Testing &amp; Characterization Laboratory</div><h1 style="margin-top:10px">Experiment ${e.no}: ${e.title}</h1></div><div style="text-align:right;font:500 .74rem var(--f-mono);color:var(--paper-muted)">Report ID<br><b style="color:var(--paper-ink);font-size:.9rem">${id}</b><br>${date}</div></header>
+    return `<div class="wmark" aria-hidden="true">${Array(160).fill(`<span>${wm}</span>`).join('')}</div><header class="rh">${LAB.LOGO ? `<img class="rlogo" src="${LAB.LOGO}" alt="MITE logo">` : '<span></span>'}<div><div class="inst">${U.esc(stu.inst || 'Mangalore Institute of Technology &amp; Engineering, Moodbidri')}</div><div class="inst" style="margin-top:2px">Department of Mechanical Engineering</div><div class="inst" style="margin-top:2px">Materials Testing &amp; Characterization Laboratory</div><h1 style="margin-top:10px">Experiment ${e.no}: ${e.title}</h1></div><div style="text-align:right;font:500 .74rem var(--f-mono);color:var(--paper-muted)">Report ID<br><b style="color:var(--paper-ink);font-size:.9rem">${id}</b><br>${date}</div></header>
       <div class="meta"><div><b>Name:</b> ${U.esc(stu.name || '________________')}</div><div><b>USN:</b> ${U.esc(stu.usn || '__________')}</div><div><b>Section / Batch:</b> ${U.esc((stu.section || '__') + ' / ' + (stu.batch || '__'))}</div><div><b>Faculty:</b> ${U.esc(stu.instructor || '________________')}</div><div><b>Standard:</b> ${e.std}</div><div><b>Date:</b> ${date}</div></div>
       ${H2('Aim and objectives')}<p>${e.aim}</p><ul>${e.objectives.map(o => `<li>${o}</li>`).join('')}</ul>
       ${H2('Apparatus and standards')}<ul>${e.apparatus.map(a => `<li>${a}</li>`).join('')}</ul><p><b>Governing standard(s):</b> ${e.std}${e.stdNote ? '. ' + e.stdNote : ''}</p>
