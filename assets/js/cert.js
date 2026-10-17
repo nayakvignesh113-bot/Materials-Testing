@@ -1,6 +1,6 @@
 /* Certificates of completion, approved by the faculty in the Google Sheet (same Apps Script as submissions).
    Student: Report tab → Request certificate (after post-test pass, feedback and report submission) → Check status → download PDF/PNG.
-   Faculty: #faculty page with FACULTY_KEY (approve, revoke, preview, draft, bulk PDF).  Anyone: #verify-<ID>.
+   Faculty: #faculty page with FACULTY_KEY (approve, revoke, preview, draft, bulk PDF, copy link; submissions with full reports, issue without request).  Anyone: #verify-<ID>.
    Optional config.js keys: certMinPost (post-test pass %, default 60), certInstitution, certDepartment, certFaculty. */
 (function () {
   'use strict';
@@ -17,6 +17,9 @@
   async function certPost(body) { const r = await fetch(url(), { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) }); return r.json(); }
   const procOf = e => 'EXP' + String(e.no).padStart(2, '0');
   const procName = e => `Experiment ${e.no}: ${e.title}`;
+  const LOGO_IMG = new Image(); if (LAB.LOGO) LOGO_IMG.src = LAB.LOGO;
+  const LOGO_READY = (LAB.LOGO && LOGO_IMG.decode ? LOGO_IMG.decode() : Promise.resolve()).catch(() => { });
+  const ready = async () => { try { await document.fonts.ready; } catch (e) { } await LOGO_READY; };
 
   /* ---------- eligibility ---------- */
   function certElig(e, S) {
@@ -44,7 +47,8 @@
     c.font = `800 120px ${F.disp}`; c.fillStyle = acc; c.textAlign = 'center'; c.fillText('MATERIALS TESTING', W / 2, H / 2 + 60); c.restore();
     c.textAlign = 'center'; c.textBaseline = 'alphabetic';
     c.fillStyle = acc; c.font = `500 24px ${F.mono}`; spaced(c, 'MATERIALS TESTING & CHARACTERIZATION VIRTUAL LAB', W / 2, 185, 4);
-    c.fillStyle = ink; fit(c, CERT.inst, `600 {s}px ${F.body}`, 34, 1400); c.fillText(CERT.inst, W / 2, 238);
+    if (LOGO_IMG.complete && LOGO_IMG.naturalWidth) { const lh = 170, lw = lh * LOGO_IMG.naturalWidth / LOGO_IMG.naturalHeight; c.drawImage(LOGO_IMG, 150, 125, lw, lh); }
+    c.fillStyle = ink; fit(c, CERT.inst, `600 {s}px ${F.body}`, 34, 1180); c.fillText(CERT.inst, W / 2, 238);
     c.fillStyle = mut; c.font = `400 28px ${F.body}`; c.fillText(CERT.dept, W / 2, 278);
     c.fillStyle = ink; c.font = `750 100px ${F.disp}`; c.fillText('Certificate of Completion', W / 2, 420);
     c.strokeStyle = gold; c.lineWidth = 2; c.beginPath(); c.moveTo(W / 2 - 260, 452); c.lineTo(W / 2 + 260, 452); c.stroke();
@@ -63,7 +67,7 @@
     if (d.draft) { c.save(); c.translate(W / 2, H / 2); c.rotate(-Math.PI / 7); c.textAlign = 'center'; c.textBaseline = 'middle'; fit(c, 'DRAFT — NOT APPROVED', `800 {s}px ${F.disp}`, 150, 1300); c.lineWidth = 5; c.strokeStyle = 'rgba(178,59,42,0.55)'; c.fillStyle = 'rgba(178,59,42,0.16)'; c.fillText('DRAFT — NOT APPROVED', 0, 0); c.strokeText('DRAFT — NOT APPROVED', 0, 0); c.font = `600 34px ${F.body}`; c.fillStyle = 'rgba(178,59,42,0.75)'; c.fillText('Not valid until approved by the faculty convener', 0, 120); c.restore(); }
     return cv;
   }
-  async function certCanvas(d) { try { await document.fonts.ready; } catch (e) { } return drawCert(document.createElement('canvas'), d); }
+  async function certCanvas(d) { await ready(); return drawCert(document.createElement('canvas'), d); }
   // Minimal PDF writer: one full-page JPEG per A4-landscape page (no external library).
   function pdfFromJpegs(imgs) {
     const enc = new TextEncoder(); const parts = []; let len = 0; const offs = [];
@@ -102,7 +106,7 @@
   function certShow(d) {
     const v = $('#certview'); if (!v) return;
     v.innerHTML = `<canvas class="certprev" id="certcv" role="img" aria-label="Certificate of completion for ${esc(d.name)}"></canvas>${LAB.EMBED ? '<p class="muted" style="font-size:.8rem">Downloads are disabled in this preview window. Open the lab from its website to download the certificate.</p>' : `<div class="controls"><button class="btn" type="button" id="certpdf">Download PDF</button><button class="btn quiet" type="button" id="certpng">Download image (PNG)</button><span class="muted" style="font-size:.8rem" id="certdl" aria-live="polite"></span></div>`}`;
-    (async () => { try { await document.fonts.ready; } catch (e) { } drawCert($('#certcv'), d); })();
+    (async () => { await ready(); drawCert($('#certcv'), d); })();
     if (LAB.EMBED) return;
     $('#certpdf').onclick = async () => { $('#certdl').textContent = 'Preparing PDF…'; try { await certPDF([d], certFile(d, 'pdf')); $('#certdl').textContent = 'Downloaded.'; } catch (e) { $('#certdl').textContent = 'Could not make the PDF; use the PNG button.'; } };
     $('#certpng').onclick = () => certPNG(d);
@@ -136,20 +140,22 @@
   };
 
   /* ---------- faculty page (#faculty) ---------- */
-  const FAC = { rows: [], key: '', filter: 'pending', q: '', arm: false };
+  const FAC = { rows: [], key: '', filter: 'pending', q: '', arm: false, view: 'certs', subs: [], sq: '', sfil: 'all' };
   try { FAC.key = sessionStorage.getItem('mtl-fac') || ''; } catch (e) { }
   EXT.faculty = function (el) {
-    document.title = 'Faculty: certificates — Materials Testing Virtual Lab';
-    el.innerHTML = `<section class="wrap" style="padding-block:28px 40px"><p class="eyebrow">Faculty</p><h1 style="margin-top:6px">Certificates</h1>
-      <p class="muted" style="margin-top:8px;max-width:75ch">Approve certificate requests and download certificates. You can also approve by ticking <b>Approved</b> in the <i>Certificates</i> tab of your Google Sheet.</p>
-      ${url() ? `<form class="panel stack" id="facf" style="gap:10px;margin-top:16px;max-width:520px" onsubmit="return false"><div class="field"><label for="fkey">Faculty key</label><input id="fkey" type="password" autocomplete="current-password" value="${esc(FAC.key)}"></div><div class="controls"><button class="btn" type="submit">Load requests</button><span class="muted" style="font-size:.84rem" id="fmsg" aria-live="polite"></span></div></form>
+    document.title = 'Faculty: certificates and reports — Materials Testing Virtual Lab';
+    el.innerHTML = `<section class="wrap" style="padding-block:28px 40px"><p class="eyebrow">Faculty</p><h1 style="margin-top:6px">Certificates and reports</h1>
+      <p class="muted" style="margin-top:8px;max-width:75ch">Approve certificate requests, issue certificates for students who never requested one, and download certificates and full lab reports. You can also approve by ticking <b>Approved</b> in the <i>Certificates</i> tab of your Google Sheet.</p>
+      ${url() ? `<form class="panel stack" id="facf" style="gap:10px;margin-top:16px;max-width:520px" onsubmit="return false"><div class="field"><label for="fkey">Faculty key</label><input id="fkey" type="password" autocomplete="current-password" value="${esc(FAC.key)}"></div><div class="controls"><button class="btn" type="submit">Load</button><span class="muted" style="font-size:.84rem" id="fmsg" aria-live="polite"></span></div></form>
+      <div class="factabs" role="tablist"><button type="button" role="tab" data-v="certs" aria-selected="${FAC.view === 'certs'}">Certificate requests</button><button type="button" role="tab" data-v="subs" aria-selected="${FAC.view === 'subs'}">Submissions &amp; reports</button></div>
       <div id="ftable" style="margin-top:16px"></div>` : '<p class="bad" style="margin-top:12px">The Google Sheet is not connected (config.js has no submitUrl). See apps-script/SUBMISSIONS_SETUP.md.</p>'}</section>`;
     const f = $('#facf'); if (!f) return;
     f.onsubmit = () => { FAC.key = $('#fkey').value.trim(); try { sessionStorage.setItem('mtl-fac', FAC.key); } catch (e) { } facLoad(); return false; };
+    document.querySelectorAll('.factabs [data-v]').forEach(b => b.onclick = () => { FAC.view = b.dataset.v; FAC.arm = false; document.querySelectorAll('.factabs [data-v]').forEach(x => x.setAttribute('aria-selected', x === b)); facLoad(); });
     if (FAC.key) facLoad();
   };
   async function facLoad() {
-    const m = $('#fmsg'); m.textContent = 'Loading…';
+    const m = $('#fmsg'); m.textContent = 'Loading…'; if (FAC.view === 'subs') return subsLoad();
     try {
       const r = await certGet({ action: 'list', key: FAC.key });
       if (!r.ok) { m.innerHTML = r.error === 'faculty key' ? '<span class="bad">Faculty key not accepted.</span> Check the FACULTY_KEY script property.' : '<span class="bad">' + esc(r.error) + '</span>'; $('#ftable').innerHTML = ''; return; }
@@ -163,7 +169,7 @@
       <label for="fq" class="muted" style="font-size:.85rem">Search</label><input id="fq" type="text" style="width:220px" value="${esc(FAC.q)}" placeholder="Name, USN or experiment">
       ${pend.length ? `<button class="btn small" type="button" id="fapall">${FAC.arm ? `Confirm: approve ${pend.length}` : `Approve all ${pend.length} shown`}</button>` : ''}${appr.length ? `<button class="btn quiet small" type="button" id="fdlall">Download ${appr.length} certificate${appr.length > 1 ? 's' : ''} (one PDF)</button>` : ''}<button class="btn quiet small" type="button" id="frel">Refresh</button></div>
       ${LAB.tableHTML({ cols: ['Requested', 'Name', 'USN', 'Experiment', 'Post-test', 'Status', ''], textCols: [0, 1, 2, 3, 4, 5, 6], rows: rows.length ? rows.map(r => [esc(r.requested), esc(r.name), `<span class="mono">${esc(r.usn)}</span>`, esc(r.processName || r.process), esc(r.postScore), r.approved ? `<span class="ok">Approved ${esc(r.approvedOn)}</span>` : '<span class="muted">Pending</span>',
-        `<span class="controls">${r.approved ? `<button class="btn quiet small" data-dl="${esc(r.certId)}" type="button">PDF</button><button class="btn quiet small" data-rv="${esc(r.certId)}" type="button">Revoke</button>` : `<button class="btn small" data-ap="${esc(r.certId)}" type="button">Approve</button><button class="btn quiet small" data-pv="${esc(r.certId)}" type="button">Preview</button><button class="btn quiet small" data-dr="${esc(r.certId)}" type="button">Draft PDF</button>`}</span>`]) : [['<span class="muted">Nothing to show.</span>', '', '', '', '', '', '']] })}<div id="fprev"></div>`;
+        `<span class="controls">${r.approved ? `<button class="btn quiet small" data-dl="${esc(r.certId)}" type="button">PDF</button><button class="btn quiet small" data-ln="${esc(r.certId)}" type="button">Copy link</button><button class="btn quiet small" data-rv="${esc(r.certId)}" type="button">Revoke</button>` : `<button class="btn small" data-ap="${esc(r.certId)}" type="button">Approve</button><button class="btn quiet small" data-pv="${esc(r.certId)}" type="button">Preview</button><button class="btn quiet small" data-dr="${esc(r.certId)}" type="button">Draft PDF</button>`}</span>`]) : [['<span class="muted">Nothing to show.</span>', '', '', '', '', '', '']] })}<div id="fprev"></div>`;
     $('#ffil').onchange = ev => { FAC.filter = ev.target.value; FAC.arm = false; facTable(); };
     $('#fq').oninput = ev => { FAC.q = ev.target.value; FAC.arm = false; const p = ev.target.selectionStart; facTable(); const i = $('#fq'); i.focus(); i.setSelectionRange(p, p); };
     $('#frel').onclick = () => facLoad();
@@ -171,15 +177,63 @@
     const da = $('#fdlall'); if (da) da.onclick = async () => { da.disabled = true; da.textContent = 'Preparing…'; try { await certPDF(appr, `Certificates-${new Date().toISOString().slice(0, 10)}.pdf`); } catch (e) { $('#fmsg').textContent = 'Could not make the PDF.'; } facTable(); };
     const T = $('#ftable'), row = id => FAC.rows.find(x => x.certId === id);
     T.querySelectorAll('[data-ap]').forEach(b => b.onclick = () => facSet('approve', [b.dataset.ap]));
+    T.querySelectorAll('[data-ln]').forEach(b => b.onclick = () => { const u = CERT.site + '#verify-' + b.dataset.ln; const ok = () => { b.textContent = 'Copied'; setTimeout(() => b.textContent = 'Copy link', 1500); };
+      try { navigator.clipboard.writeText(u).then(ok, () => { $('#fmsg').textContent = u; }); } catch (e) { $('#fmsg').textContent = u; } });
     T.querySelectorAll('[data-rv]').forEach(b => b.onclick = () => facSet('revoke', [b.dataset.rv]));
     T.querySelectorAll('[data-dl]').forEach(b => b.onclick = async () => { const r = row(b.dataset.dl); try { await certPDF([r], certFile(r, 'pdf')); } catch (e) { certPNG(r); } });
     T.querySelectorAll('[data-dr]').forEach(b => b.onclick = async () => { const r = row(b.dataset.dr); await certPDF([{ ...r, approvedOn: '(pending approval)', draft: true }], certFile(r, 'pdf').replace('Certificate-', 'DRAFT-Certificate-')); });
-    T.querySelectorAll('[data-pv]').forEach(b => b.onclick = async () => { const r = row(b.dataset.pv); $('#fprev').innerHTML = `<h3 style="margin:16px 0 8px">Preview: ${esc(r.name)}</h3><canvas class="certprev" id="fpcv" role="img" aria-label="Certificate preview"></canvas>`; try { await document.fonts.ready; } catch (e) { } drawCert($('#fpcv'), { ...r, approvedOn: '(pending approval)', draft: true }); $('#fprev').scrollIntoView({ block: 'nearest' }); });
+    T.querySelectorAll('[data-pv]').forEach(b => b.onclick = async () => { const r = row(b.dataset.pv); $('#fprev').innerHTML = `<h3 style="margin:16px 0 8px">Preview: ${esc(r.name)}</h3><canvas class="certprev" id="fpcv" role="img" aria-label="Certificate preview"></canvas>`; await ready(); drawCert($('#fpcv'), { ...r, approvedOn: '(pending approval)', draft: true }); $('#fprev').scrollIntoView({ block: 'nearest' }); });
   }
   async function facSet(action, ids) {
     const m = $('#fmsg'); m.textContent = action === 'approve' ? 'Approving…' : 'Revoking…';
     try { const r = await certPost({ action, key: FAC.key, certIds: ids }); if (!r.ok) { m.innerHTML = '<span class="bad">' + esc(r.error) + '</span>'; return; } await facLoad(); }
     catch (e) { m.innerHTML = '<span class="bad">Could not reach the Google Sheet.</span>'; }
+  }
+
+  /* ---------- faculty: submissions, full reports, issuing without a request ---------- */
+  async function subsLoad() {
+    const m = $('#fmsg');
+    try {
+      const r = await certPost({ action: 'subs', key: FAC.key });
+      if (!r.ok) { m.innerHTML = r.error === 'faculty key' ? '<span class="bad">Faculty key not accepted.</span> Check the FACULTY_KEY script property.' : '<span class="bad">' + esc(r.error) + '</span> (Update Code.gs to the latest version and deploy a new version.)'; $('#ftable').innerHTML = ''; return; }
+      FAC.subs = r.rows.sort((a, b) => String(a.usn).localeCompare(String(b.usn)) || String(a.process).localeCompare(String(b.process)));
+      m.textContent = `${r.rows.length} submission${r.rows.length === 1 ? '' : 's'} (latest per student and experiment) · ${r.rows.filter(x => x.hasReport).length} with full report`; subsTable();
+    } catch (e) { m.innerHTML = '<span class="bad">Could not reach the Google Sheet.</span>'; }
+  }
+  const expOf = code => LAB.list.find(e => procOf(e) === String(code).toUpperCase());
+  function subsTable() {
+    const q = FAC.sq.toLowerCase();
+    const rows = FAC.subs.filter(r => (FAC.sfil === 'all' || (FAC.sfil === 'nocert' && r.cert === 'none') || (FAC.sfil === 'report' && r.hasReport)) && (!q || (r.name + ' ' + r.usn + ' ' + r.process + ' ' + r.experiment).toLowerCase().includes(q)));
+    const withRep = rows.filter(r => r.hasReport);
+    $('#ftable').innerHTML = `<div class="toolbar"><label for="sfil" class="muted" style="font-size:.85rem">Show</label><select id="sfil" style="width:auto">${[['all', 'All submissions'], ['nocert', 'Without certificate'], ['report', 'With full report']].map(([v, l]) => `<option value="${v}"${FAC.sfil === v ? ' selected' : ''}>${l}</option>`).join('')}</select>
+      <label for="sq" class="muted" style="font-size:.85rem">Search</label><input id="sq" type="text" style="width:220px" value="${esc(FAC.sq)}" placeholder="Name, USN or experiment">
+      ${withRep.length ? `<button class="btn quiet small" type="button" id="srepall">Download ${withRep.length} report${withRep.length > 1 ? 's' : ''} (one file)</button>` : ''}<button class="btn quiet small" type="button" id="srel">Refresh</button></div>
+      ${LAB.tableHTML({ cols: ['Submitted', 'Name', 'USN', 'Experiment', 'Post-test', 'Report', 'Certificate'], textCols: [0, 1, 2, 3, 4, 5, 6], rows: rows.length ? rows.map((r, k) => [esc(r.received), esc(r.name), `<span class="mono">${esc(r.usn)}</span>`, esc(r.experiment || r.process), esc(r.post),
+        r.hasReport ? `<button class="btn quiet small" data-rep="${k}" type="button">Download</button>` : '<span class="muted" title="Submitted before reports were stored, or not saved">Summary only</span>',
+        r.cert === 'approved' ? '<span class="ok">Issued</span>' : r.cert === 'pending' ? `<button class="btn small" data-apc="${esc(r.certId)}" type="button">Approve request</button>` : `<button class="btn quiet small" data-iss="${k}" type="button">Issue certificate</button>`]) : [['<span class="muted">Nothing to show.</span>', '', '', '', '', '', '']] })}
+      <p class="muted" style="font-size:.8rem">“Issue certificate” creates an approved certificate from the student’s submission, even if they never requested one. Then send them the link from Certificate requests (Copy link); they can download it on any computer.</p>`;
+    $('#sfil').onchange = ev => { FAC.sfil = ev.target.value; subsTable(); };
+    $('#sq').oninput = ev => { FAC.sq = ev.target.value; const p = ev.target.selectionStart; subsTable(); const i = $('#sq'); i.focus(); i.setSelectionRange(p, p); };
+    $('#srel').onclick = () => subsLoad();
+    const T = $('#ftable');
+    T.querySelectorAll('[data-rep]').forEach(b => b.onclick = async () => { const r = rows[+b.dataset.rep]; b.disabled = true; b.textContent = '…';
+      try { const x = await certPost({ action: 'report', key: FAC.key, reportId: r.reportId }); if (!x.ok) throw new Error(x.error); saveBlob(new Blob([x.html], { type: 'text/html' }), `${r.reportId}-${r.usn}.html`); b.textContent = 'Download'; }
+      catch (e) { b.textContent = 'Failed'; $('#fmsg').textContent = 'Could not fetch that report: ' + (e.message || ''); } b.disabled = false; });
+    T.querySelectorAll('[data-iss]').forEach(b => b.onclick = async () => { const r = rows[+b.dataset.iss]; const e = expOf(r.process); b.disabled = true; b.textContent = 'Issuing…';
+      try { const x = await certPost({ action: 'issue', key: FAC.key, usn: r.usn, process: r.process, processName: e ? procName(e) : (r.experiment || r.process), std: e ? e.std.split(';')[0].trim() : '' }); if (!x.ok) throw new Error(x.error); await subsLoad(); }
+      catch (er) { b.disabled = false; b.textContent = 'Issue certificate'; $('#fmsg').textContent = 'Could not issue: ' + (er.message || ''); } });
+    T.querySelectorAll('[data-apc]').forEach(b => b.onclick = async () => { b.disabled = true; try { const x = await certPost({ action: 'approve', key: FAC.key, certIds: [b.dataset.apc] }); if (!x.ok) throw new Error(x.error); await subsLoad(); } catch (e) { b.disabled = false; $('#fmsg').textContent = 'Could not approve.'; } });
+    const ra = $('#srepall'); if (ra) ra.onclick = async () => {
+      ra.disabled = true; let css = '', parts = [], n = 0;
+      for (const r of withRep) {
+        ra.textContent = `Fetching ${++n} of ${withRep.length}…`;
+        try { const x = await certPost({ action: 'report', key: FAC.key, reportId: r.reportId }); if (!x.ok) continue; const doc = new DOMParser().parseFromString(x.html, 'text/html');
+          if (!css) { const st = doc.querySelector('style'); css = st ? st.textContent : ''; } const sh = doc.querySelector('.sheet'); parts.push(`<div class="rpage"><article class="sheet">${sh ? sh.innerHTML : doc.body.innerHTML}</article></div>`); } catch (e) { }
+      }
+      const html = `<!doctype html><html lang="en" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Materials Testing lab reports (${parts.length})</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"><style>${css}
+.rpage{padding:24px;max-width:960px;margin:0 auto 32px}@media print{.rpage{break-after:page;padding:0;margin:0}}</style></head><body style="background:#fff">${parts.join('')}</body></html>`;
+      saveBlob(new Blob([html], { type: 'text/html' }), `Materials-Testing-lab-reports-${new Date().toISOString().slice(0, 10)}.html`); subsTable();
+    };
   }
 
   /* ---------- public verification page (#verify-ID) ---------- */
@@ -189,8 +243,9 @@
     if (!url()) { $('#vres').innerHTML = '<p class="bad">Verification is not available on this copy of the lab.</p>'; return; }
     try {
       const r = await certGet({ action: 'verify', id }); const v = $('#vres'); if (!v) return;
-      v.innerHTML = r.valid ? `<p class="ok" style="font-size:1.2rem;margin-bottom:8px"><b>✓ Valid certificate</b></p>${LAB.tableHTML({ cols: ['Field', 'Value'], textCols: [0, 1], rows: [['Name', esc(r.cert.name)], ['USN', esc(r.cert.usn)], ['Experiment', esc(r.cert.processName)], ['Post-test', esc(r.cert.postScore)], ['Approved', esc(r.cert.approvedOn)]] })}<p class="muted" style="font-size:.84rem">Issued by ${esc(CERT.fac)}, ${esc(CERT.dept)}, ${esc(CERT.inst)}.</p>`
+      v.innerHTML = r.valid ? `<p class="ok" style="font-size:1.2rem;margin-bottom:8px"><b>✓ Valid certificate</b></p>${LAB.tableHTML({ cols: ['Field', 'Value'], textCols: [0, 1], rows: [['Name', esc(r.cert.name)], ['USN', esc(r.cert.usn)], ['Experiment', esc(r.cert.processName)], ['Post-test', esc(r.cert.postScore)], ['Approved', esc(r.cert.approvedOn)]] })}<p class="muted" style="font-size:.84rem">Issued by ${esc(CERT.fac)}, ${esc(CERT.dept)}, ${esc(CERT.inst)}.</p>${LAB.EMBED ? '' : '<div class="controls" style="margin-top:10px"><button class="btn" type="button" id="vpdf">Download certificate (PDF)</button><button class="btn quiet" type="button" id="vpng">Download image (PNG)</button><span class="muted" style="font-size:.8rem" id="vmsg" aria-live="polite"></span></div>'}`
         : `<p class="bad" style="font-size:1.2rem"><b>✗ Not a valid certificate</b></p><p class="muted" style="font-size:.86rem;margin-top:6px">${r.reason === 'not approved' ? 'This ID exists but has not been approved, or approval was withdrawn.' : 'No certificate with this ID was issued.'}</p>`;
+      if (r.valid && $('#vpdf')) { $('#vpdf').onclick = async () => { $('#vmsg').textContent = 'Preparing PDF…'; try { await certPDF([r.cert], certFile(r.cert, 'pdf')); $('#vmsg').textContent = 'Downloaded.'; } catch (e) { $('#vmsg').textContent = 'Could not make the PDF; use the PNG button.'; } }; $('#vpng').onclick = () => certPNG(r.cert); }
     } catch (e) { $('#vres').innerHTML = '<p class="bad">Could not reach the verification service. Try again later.</p>'; }
   };
 })();

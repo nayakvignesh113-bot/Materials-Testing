@@ -440,3 +440,11 @@ table.t tr:last-child td{border-bottom:0}
 .certlist li.ok{color:var(--ok)}
 .certprev{width:100%;height:auto;display:block;border:1px solid var(--line);border-radius:var(--r);margin:6px 0 8px;background:#fcfbf7}
 @media print{.certcard{display:none!important}}
+.factabs{display:flex;gap:4px;margin:18px 0 0;border-bottom:1px solid var(--line)}
+.factabs button{border:0;background:none;cursor:pointer;padding:8px 14px;font-weight:600;border-bottom:3px solid transparent;color:var(--muted);font-size:.92rem}
+.factabs button[aria-selected="true"]{border-color:var(--accent);color:var(--ink)}
+/* v2.1: MITE logo */
+.brand-logo{height:38px;width:auto;flex:none;display:block;background:#fff;border-radius:4px;padding:2px}
+.sheet .rh{grid-template-columns:auto minmax(0,1fr) auto;align-items:center}
+.sheet .rh .rlogo{height:74px;width:auto;display:block}
+.hero-logo{height:64px;width:auto;margin-bottom:12px;display:block}
